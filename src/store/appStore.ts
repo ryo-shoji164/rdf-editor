@@ -4,6 +4,7 @@ import { parseTurtle, parseNTriples, parseJsonLd } from '../lib/rdf/parser'
 import { serializeTurtle, serializeNTriples, downloadText } from '../lib/rdf/serializer'
 import { FOAF_EXAMPLE, SAMM_EXAMPLE } from '../lib/samm/templates'
 import type { RdfFormat } from '../types/rdf'
+import type * as JsonLdModule from 'jsonld'
 
 export type ActiveView = 'editor' | 'graph' | 'table' | 'split'
 export type AppMode = 'free' | 'samm'
@@ -69,7 +70,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   reparseNow: async () => {
-    if (parseTimer) { clearTimeout(parseTimer); parseTimer = null }
+    if (parseTimer) {
+      clearTimeout(parseTimer)
+      parseTimer = null
+    }
     await applyParseResult(get().turtleText, set)
   },
 
@@ -105,7 +109,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   exportAs: async (format) => {
-    const { store, prefixes, turtleText } = get()
+    const { store, turtleText } = get()
     if (format === 'turtle') {
       downloadText(turtleText, 'model.ttl', 'text/turtle')
     } else if (format === 'n-triples') {
@@ -116,7 +120,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       try {
         const nt = await serializeNTriples(store)
         const jsonld = await import('jsonld')
-        const doc = await (jsonld.default as typeof import('jsonld')).fromRDF(nt, {
+        const doc = await (jsonld.default as typeof JsonLdModule).fromRDF(nt, {
           format: 'application/n-quads',
         })
         downloadText(JSON.stringify(doc, null, 2), 'model.jsonld', 'application/ld+json')

@@ -14,15 +14,17 @@ const MAX_NODES = 300 // Performance guard
  * Blank nodes and literals are represented as nodes.
  * Predicates become directed edges.
  */
-export function storeToCytoscape(
-  store: N3.Store,
-  prefixes: Record<string, string>
-): CyElements {
+export function storeToCytoscape(store: N3.Store, prefixes: Record<string, string>): CyElements {
   const nodeMap = new Map<string, CyNodeData>()
   const edges: { data: CyEdgeData }[] = []
   let edgeIdx = 0
 
-  const addNode = (id: string, label: string, nodeType: CyNodeData['nodeType'], fullIri?: string) => {
+  const addNode = (
+    id: string,
+    label: string,
+    nodeType: CyNodeData['nodeType'],
+    fullIri?: string
+  ) => {
     if (!nodeMap.has(id)) {
       nodeMap.set(id, { id, label, nodeType, fullIri })
     }

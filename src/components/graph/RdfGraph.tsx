@@ -131,9 +131,7 @@ export default function RdfGraph() {
         </button>
         <span className="ml-auto text-text-muted">
           {tripleCount} triple{tripleCount !== 1 ? 's' : ''}
-          {tripleCount >= 300 && (
-            <span className="ml-1 text-accent-yellow">(max 300 shown)</span>
-          )}
+          {tripleCount >= 300 && <span className="ml-1 text-accent-yellow">(max 300 shown)</span>}
         </span>
       </div>
 

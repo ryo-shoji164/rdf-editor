@@ -45,7 +45,10 @@ export default function TripleTable() {
         <input
           type="text"
           value={filter}
-          onChange={(e) => { setFilter(e.target.value); setPage(0) }}
+          onChange={(e) => {
+            setFilter(e.target.value)
+            setPage(0)
+          }}
           placeholder="Filter subjects, predicates, objects…"
           className="flex-1 bg-transparent outline-none text-text-primary placeholder:text-text-muted"
         />
@@ -69,7 +72,9 @@ export default function TripleTable() {
               <tr
                 key={i}
                 className="border-b border-surface-raised hover:bg-surface-raised cursor-pointer"
-                onClick={() => t.objectType === 'iri' ? setSelectedNode(t.object) : setSelectedNode(t.subject)}
+                onClick={() =>
+                  t.objectType === 'iri' ? setSelectedNode(t.object) : setSelectedNode(t.subject)
+                }
               >
                 <td className="px-3 py-1 text-accent-blue truncate max-w-0 w-1/3">
                   <span title={t.subject}>{formatRdfTerm(t.subject)}</span>
@@ -83,7 +88,9 @@ export default function TripleTable() {
                       "{t.object}"
                       {t.language && <span className="text-text-muted ml-1">@{t.language}</span>}
                       {t.datatype && !t.language && (
-                        <span className="text-text-muted ml-1">^^{shorten(t.datatype, prefixes)}</span>
+                        <span className="text-text-muted ml-1">
+                          ^^{shorten(t.datatype, prefixes)}
+                        </span>
                       )}
                     </span>
                   ) : t.objectType === 'blank' ? (
