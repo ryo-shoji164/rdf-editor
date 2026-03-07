@@ -109,12 +109,13 @@ export default function AppLayout() {
             <button
               key={domain.id}
               onClick={() => setActiveDomain(domain.id)}
-              className={`px-3 py-1 text-xs capitalize transition-colors ${activeDomainId === domain.id
+              className={`px-3 py-1 text-xs capitalize transition-colors ${
+                activeDomainId === domain.id
                   ? domain.id === 'samm'
                     ? 'bg-accent-purple text-surface font-medium'
                     : 'bg-accent-blue text-surface font-medium'
                   : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
-                }`}
+              }`}
             >
               {domain.label}
             </button>
@@ -129,10 +130,11 @@ export default function AppLayout() {
                 key={btn.id}
                 onClick={() => setActiveView(btn.id)}
                 title={btn.label}
-                className={`px-2.5 py-1 flex items-center gap-1 text-xs transition-colors ${activeView === btn.id
+                className={`px-2.5 py-1 flex items-center gap-1 text-xs transition-colors ${
+                  activeView === btn.id
                     ? 'bg-surface-raised text-text-primary'
                     : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
-                  }`}
+                }`}
               >
                 {btn.icon}
                 <span className="hidden sm:inline">{btn.label}</span>
@@ -220,9 +222,7 @@ export default function AppLayout() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-hidden">
-        {renderMainContent()}
-      </main>
+      <main className="flex-1 overflow-hidden">{renderMainContent()}</main>
 
       <StatusBar />
     </div>

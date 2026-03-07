@@ -20,12 +20,14 @@ export default function StatusBar() {
           {domainLabel}
         </span>
       </span>
-      <span>Triples: <span className="text-text-primary">{store.size}</span></span>
-      <span>Prefixes: <span className="text-text-primary">{prefixCount}</span></span>
+      <span>
+        Triples: <span className="text-text-primary">{store.size}</span>
+      </span>
+      <span>
+        Prefixes: <span className="text-text-primary">{prefixCount}</span>
+      </span>
       {isParsing && <span className="text-accent-yellow">Parsing…</span>}
-      {!isParsing && parseError && (
-        <span className="text-accent-red truncate">⚠ {parseError}</span>
-      )}
+      {!isParsing && parseError && <span className="text-accent-red truncate">⚠ {parseError}</span>}
       {!isParsing && !parseError && store.size > 0 && (
         <span className="text-accent-green">✓ Valid Turtle</span>
       )}

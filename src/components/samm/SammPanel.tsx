@@ -4,14 +4,10 @@ import { useRdfStore } from '../../store/rdfStore'
 import { findAspects, readAspect, findEntities, readEntity } from '../../lib/samm/reader'
 import { localName } from '../../lib/rdf/namespaces'
 import { newAspectTemplate } from '../../lib/samm/templates'
-import { SAMM_NS } from '../../lib/samm/vocabulary'
 import AspectForm from './AspectForm'
 import EntityForm from './EntityForm'
 
-type Selection =
-  | { kind: 'aspect'; iri: string }
-  | { kind: 'entity'; iri: string }
-  | null
+type Selection = { kind: 'aspect'; iri: string } | { kind: 'entity'; iri: string } | null
 
 export default function SammPanel() {
   const store = useRdfStore((s) => s.store)
@@ -66,8 +62,9 @@ export default function SammPanel() {
           <button
             key={iri}
             onClick={() => setSelected({ kind: 'aspect', iri })}
-            className={`flex items-center gap-1.5 px-3 py-1.5 w-full text-left hover:bg-surface-raised truncate ${selected?.iri === iri ? 'bg-surface-raised text-accent-purple' : 'text-text-primary'
-              }`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 w-full text-left hover:bg-surface-raised truncate ${
+              selected?.iri === iri ? 'bg-surface-raised text-accent-purple' : 'text-text-primary'
+            }`}
           >
             <Box size={11} className="text-accent-purple shrink-0" />
             <span className="truncate">{localName(iri)}</span>
@@ -85,8 +82,9 @@ export default function SammPanel() {
               <button
                 key={iri}
                 onClick={() => setSelected({ kind: 'entity', iri })}
-                className={`flex items-center gap-1.5 px-3 py-1.5 w-full text-left hover:bg-surface-raised truncate ${selected?.iri === iri ? 'bg-surface-raised text-accent-cyan' : 'text-text-primary'
-                  }`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 w-full text-left hover:bg-surface-raised truncate ${
+                  selected?.iri === iri ? 'bg-surface-raised text-accent-cyan' : 'text-text-primary'
+                }`}
               >
                 <span className="text-accent-cyan font-bold">E</span>
                 <span className="truncate">{localName(iri)}</span>

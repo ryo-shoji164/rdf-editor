@@ -44,15 +44,12 @@ export default function AspectForm({ aspect }: Props) {
     const propRef = `:${propName.trim()}`
     // Insert the new property reference into the samm:properties list.
     // A single regex handles both the empty-list and non-empty-list cases.
-    const updated = turtleText.replace(
-      /samm:properties\s*\(([^)]*)\)/,
-      (_, inner) => {
-        const trimmed = inner.trim()
-        return trimmed
-          ? `samm:properties ( ${trimmed} ${propRef} )`
-          : `samm:properties ( ${propRef} )`
-      }
-    )
+    const updated = turtleText.replace(/samm:properties\s*\(([^)]*)\)/, (_, inner) => {
+      const trimmed = inner.trim()
+      return trimmed
+        ? `samm:properties ( ${trimmed} ${propRef} )`
+        : `samm:properties ( ${propRef} )`
+    })
     setTurtleText(updated + snippet)
     setShowAddProp(false)
     setPropName('')
@@ -65,7 +62,10 @@ export default function AspectForm({ aspect }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <div className="text-sm font-medium text-accent-purple">{localName(aspect.iri)}</div>
-          <div className="text-[10px] text-text-muted font-mono truncate max-w-xs" title={aspect.iri}>
+          <div
+            className="text-[10px] text-text-muted font-mono truncate max-w-xs"
+            title={aspect.iri}
+          >
             {aspect.iri}
           </div>
         </div>
@@ -132,7 +132,9 @@ export default function AspectForm({ aspect }: Props) {
                 className="w-full bg-surface border border-surface-raised rounded px-2 py-1 text-text-primary outline-none focus:border-accent-blue text-xs"
               >
                 {CHAR_OPTIONS.map((o) => (
-                  <option key={o.iri} value={o.iri}>{o.label}</option>
+                  <option key={o.iri} value={o.iri}>
+                    {o.label}
+                  </option>
                 ))}
               </select>
             </div>

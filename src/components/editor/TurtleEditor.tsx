@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import Editor, { Monaco } from '@monaco-editor/react'
+import Editor, { type Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
 import { useRdfStore } from '../../store/rdfStore'
 
@@ -165,15 +165,9 @@ export default function TurtleEditor() {
       />
       {/* Parse status bar */}
       <div className="flex items-center gap-2 px-3 py-1 border-t border-surface-raised text-xs">
-        {isParsing && (
-          <span className="text-text-muted">Parsing…</span>
-        )}
-        {!isParsing && parseError && (
-          <span className="text-accent-red truncate">{parseError}</span>
-        )}
-        {!isParsing && !parseError && (
-          <span className="text-accent-green">OK</span>
-        )}
+        {isParsing && <span className="text-text-muted">Parsing…</span>}
+        {!isParsing && parseError && <span className="text-accent-red truncate">{parseError}</span>}
+        {!isParsing && !parseError && <span className="text-accent-green">OK</span>}
       </div>
     </div>
   )
