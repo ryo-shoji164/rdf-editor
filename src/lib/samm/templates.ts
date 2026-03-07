@@ -55,7 +55,7 @@ export function newCharacteristicSnippet(
  * Generate Turtle snippet for a custom Entity.
  */
 export function newEntitySnippet(name: string, namespace: string): string {
-  const ns = namespace.endsWith('#') ? namespace : `${namespace}#`
+  const _ns = namespace.endsWith('#') ? namespace : `${namespace}#`
   return `
 :${name} a samm:Entity ;
     samm:preferredName "${name}"@en ;

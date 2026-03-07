@@ -1,16 +1,16 @@
 import { useEffect, useRef } from 'react'
-import Editor, { Monaco } from '@monaco-editor/react'
+import Editor, { type Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
-import { useAppStore } from '../../store/appStore'
+import { useRdfStore } from '../../store/rdfStore'
 import { registerTurtleLanguage } from '../../lib/editor/languageSetup'
 import { registerCompletionProvider, disposeCompletionProvider } from '../../lib/editor/completionProvider'
 import { fromParseError, setDiagnostics, applyDiagnostics, clearDiagnostics } from '../../lib/editor/diagnosticsProvider'
 
 export default function TurtleEditor() {
-  const turtleText = useAppStore((s) => s.turtleText)
-  const setTurtleText = useAppStore((s) => s.setTurtleText)
-  const parseError = useAppStore((s) => s.parseError)
-  const isParsing = useAppStore((s) => s.isParsing)
+  const turtleText = useRdfStore((s) => s.turtleText)
+  const setTurtleText = useRdfStore((s) => s.setTurtleText)
+  const parseError = useRdfStore((s) => s.parseError)
+  const isParsing = useRdfStore((s) => s.isParsing)
   const editorRef = useRef<MonacoEditor.editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
 
@@ -80,15 +80,9 @@ export default function TurtleEditor() {
       />
       {/* Parse status bar */}
       <div className="flex items-center gap-2 px-3 py-1 border-t border-surface-raised text-xs">
-        {isParsing && (
-          <span className="text-text-muted">Parsing…</span>
-        )}
-        {!isParsing && parseError && (
-          <span className="text-accent-red truncate">{parseError}</span>
-        )}
-        {!isParsing && !parseError && (
-          <span className="text-accent-green">OK</span>
-        )}
+        {isParsing && <span className="text-text-muted">Parsing…</span>}
+        {!isParsing && parseError && <span className="text-accent-red truncate">{parseError}</span>}
+        {!isParsing && !parseError && <span className="text-accent-green">OK</span>}
       </div>
     </div>
   )

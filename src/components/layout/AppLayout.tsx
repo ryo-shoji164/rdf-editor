@@ -10,7 +10,9 @@ import {
   BookOpen,
   Layers,
 } from 'lucide-react'
-import { useAppStore, type ActiveView, type AppMode } from '../../store/appStore'
+import { useRdfStore } from '../../store/rdfStore'
+import { useUiStore, type ActiveView } from '../../store/uiStore'
+import { useDomainStore } from '../../store/domainStore'
 import TurtleEditor from '../editor/TurtleEditor'
 import RdfGraph from '../graph/RdfGraph'
 import TripleTable from '../table/TripleTable'
@@ -25,15 +27,22 @@ const VIEW_BUTTONS: { id: ActiveView; icon: React.ReactNode; label: string }[] =
 ]
 
 export default function AppLayout() {
-  const activeView = useAppStore((s) => s.activeView)
-  const mode = useAppStore((s) => s.mode)
-  const setActiveView = useAppStore((s) => s.setActiveView)
-  const setMode = useAppStore((s) => s.setMode)
-  const importFile = useAppStore((s) => s.importFile)
-  const exportAs = useAppStore((s) => s.exportAs)
-  const loadExample = useAppStore((s) => s.loadExample)
-  const clearAll = useAppStore((s) => s.clearAll)
+  const activeView = useUiStore((s) => s.activeView)
+  const setActiveView = useUiStore((s) => s.setActiveView)
+
+  const activeDomainId = useDomainStore((s) => s.activeDomainId)
+  const registeredDomains = useDomainStore((s) => s.registeredDomains)
+  const setActiveDomain = useDomainStore((s) => s.setActiveDomain)
+  const loadTemplate = useDomainStore((s) => s.loadTemplate)
+
+  const importFile = useRdfStore((s) => s.importFile)
+  const exportAs = useRdfStore((s) => s.exportAs)
+  const clearAll = useRdfStore((s) => s.clearAll)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Convert Map to sorted array for rendering
+  const domainList = Array.from(registeredDomains.values())
 
   function handleFileOpen(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -55,7 +64,7 @@ export default function AppLayout() {
   }
 
   function renderMainContent() {
-    if (mode === 'samm') {
+    if (activeDomainId === 'samm') {
       return (
         <div className="flex h-full">
           <div className="w-1/2 border-r border-surface-raised overflow-hidden flex flex-col">
@@ -94,27 +103,27 @@ export default function AppLayout() {
           <span className="text-sm font-medium text-text-primary">RDF Editor</span>
         </div>
 
-        {/* Mode toggle */}
+        {/* Mode toggle — dynamically generated from registered domains */}
         <div className="flex rounded overflow-hidden border border-surface-raised mr-2">
-          {(['free', 'samm'] as AppMode[]).map((m) => (
+          {domainList.map((domain) => (
             <button
-              key={m}
-              onClick={() => setMode(m)}
+              key={domain.id}
+              onClick={() => setActiveDomain(domain.id)}
               className={`px-3 py-1 text-xs capitalize transition-colors ${
-                mode === m
-                  ? m === 'samm'
+                activeDomainId === domain.id
+                  ? domain.id === 'samm'
                     ? 'bg-accent-purple text-surface font-medium'
                     : 'bg-accent-blue text-surface font-medium'
                   : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
               }`}
             >
-              {m === 'samm' ? 'SAMM' : 'Free'}
+              {domain.label}
             </button>
           ))}
         </div>
 
         {/* View toggle (hidden in SAMM mode) */}
-        {mode !== 'samm' && (
+        {activeDomainId !== 'samm' && (
           <div className="flex rounded overflow-hidden border border-surface-raised mr-2">
             {VIEW_BUTTONS.map((btn) => (
               <button
@@ -135,25 +144,24 @@ export default function AppLayout() {
         )}
 
         <div className="ml-auto flex items-center gap-1">
-          {/* Examples */}
+          {/* Examples — dynamically generated from registered domains */}
           <div className="relative group">
             <button className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-muted hover:text-text-primary hover:bg-surface-raised rounded">
               <BookOpen size={13} />
               <span className="hidden sm:inline">Examples</span>
             </button>
             <div className="hidden group-hover:flex flex-col absolute right-0 top-full mt-1 bg-surface-raised border border-surface-raised rounded shadow-lg z-50 min-w-36">
-              <button
-                onClick={() => loadExample('foaf')}
-                className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
-              >
-                FOAF Graph
-              </button>
-              <button
-                onClick={() => { loadExample('samm'); setMode('samm') }}
-                className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
-              >
-                SAMM Aspect
-              </button>
+              {domainList.map((domain) =>
+                domain.templates.map((tmpl) => (
+                  <button
+                    key={`${domain.id}-${tmpl.id}`}
+                    onClick={() => loadTemplate(domain.id, tmpl.id)}
+                    className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
+                  >
+                    {tmpl.label}
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
@@ -214,9 +222,7 @@ export default function AppLayout() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-hidden">
-        {renderMainContent()}
-      </main>
+      <main className="flex-1 overflow-hidden">{renderMainContent()}</main>
 
       <StatusBar />
     </div>

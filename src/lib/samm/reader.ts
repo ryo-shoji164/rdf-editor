@@ -6,7 +6,7 @@ import type {
   SammEntity,
   SammCharacteristicType,
 } from '../../types/rdf'
-import { SAMM, SAMM_PROP, SAMM_C, SAMM_C_NS, SAMM_NS } from './vocabulary'
+import { SAMM, SAMM_PROP, SAMM_C, SAMM_C_NS } from './vocabulary'
 import { getOne, getAll, resolveRdfList } from '../rdf/store'
 import { localName } from '../rdf/namespaces'
 
@@ -85,10 +85,7 @@ export function readProperty(store: N3.Store, propIri: string): SammProperty {
 /**
  * Read a SammCharacteristic from the store.
  */
-export function readCharacteristic(
-  store: N3.Store,
-  charIri: string
-): SammCharacteristic {
+export function readCharacteristic(store: N3.Store, charIri: string): SammCharacteristic {
   // Check if it's a built-in characteristic
   if (charIri.startsWith(SAMM_C_NS)) {
     return {
@@ -160,10 +157,7 @@ const CHAR_TYPE_MAP: Record<string, SammCharacteristicType> = {
   [SAMM.Characteristic]: 'Characteristic',
 }
 
-function resolveCharacteristicType(
-  store: N3.Store,
-  iri: string
-): SammCharacteristicType {
+function resolveCharacteristicType(store: N3.Store, iri: string): SammCharacteristicType {
   const types = getAll(store, iri, RDF_TYPE)
   for (const t of types) {
     if (CHAR_TYPE_MAP[t]) return CHAR_TYPE_MAP[t]
