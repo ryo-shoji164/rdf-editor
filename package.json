@@ -1,0 +1,36 @@
+{
+  "name": "rdf-editor",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.6.0",
+    "cytoscape": "^3.29.2",
+    "cytoscape-cose-bilkent": "^4.1.0",
+    "jsonld": "^8.3.2",
+    "lucide-react": "^0.344.0",
+    "monaco-editor": "^0.45.0",
+    "n3": "^1.21.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/cytoscape": "^3.21.4",
+    "@types/jsonld": "^1.5.14",
+    "@types/n3": "^1.16.4",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.4.2",
+    "vite": "^5.2.0"
+  }
+}
