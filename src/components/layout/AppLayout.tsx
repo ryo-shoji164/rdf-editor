@@ -1,15 +1,5 @@
 import { useRef } from 'react'
-import {
-  Code2,
-  Network,
-  Table2,
-  Columns2,
-  FileDown,
-  FileUp,
-  Trash2,
-  BookOpen,
-  Layers,
-} from 'lucide-react'
+import { Code2, Network, Table2, Columns2, FileDown, FileUp, Trash2, Layers } from 'lucide-react'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore, type ActiveView } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
@@ -18,6 +8,7 @@ import RdfGraph from '../graph/RdfGraph'
 import TripleTable from '../table/TripleTable'
 import SammPanel from '../samm/SammPanel'
 import StatusBar from './StatusBar'
+import TemplateMenu from './TemplateMenu'
 
 const VIEW_BUTTONS: { id: ActiveView; icon: React.ReactNode; label: string }[] = [
   { id: 'editor', icon: <Code2 size={15} />, label: 'Editor' },
@@ -33,8 +24,6 @@ export default function AppLayout() {
   const activeDomainId = useDomainStore((s) => s.activeDomainId)
   const registeredDomains = useDomainStore((s) => s.registeredDomains)
   const setActiveDomain = useDomainStore((s) => s.setActiveDomain)
-  const loadTemplate = useDomainStore((s) => s.loadTemplate)
-
   const importFile = useRdfStore((s) => s.importFile)
   const exportAs = useRdfStore((s) => s.exportAs)
   const clearAll = useRdfStore((s) => s.clearAll)
@@ -145,25 +134,7 @@ export default function AppLayout() {
 
         <div className="ml-auto flex items-center gap-1">
           {/* Examples — dynamically generated from registered domains */}
-          <div className="relative group">
-            <button className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-muted hover:text-text-primary hover:bg-surface-raised rounded">
-              <BookOpen size={13} />
-              <span className="hidden sm:inline">Examples</span>
-            </button>
-            <div className="hidden group-hover:flex flex-col absolute right-0 top-full mt-1 bg-surface-raised border border-surface-raised rounded shadow-lg z-50 min-w-36">
-              {domainList.map((domain) =>
-                domain.templates.map((tmpl) => (
-                  <button
-                    key={`${domain.id}-${tmpl.id}`}
-                    onClick={() => loadTemplate(domain.id, tmpl.id)}
-                    className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
-                  >
-                    {tmpl.label}
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
+          <TemplateMenu />
 
           {/* Import */}
           <input
