@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback } from 'react'
 import cytoscape from 'cytoscape'
 import coseBilkent from 'cytoscape-cose-bilkent'
-import { useAppStore } from '../../store/appStore'
+import { useRdfStore } from '../../store/rdfStore'
+import { useUiStore } from '../../store/uiStore'
 import { storeToCytoscape, CY_STYLE } from './graphUtils'
 
 cytoscape.use(coseBilkent)
@@ -10,10 +11,10 @@ export default function RdfGraph() {
   const containerRef = useRef<HTMLDivElement>(null)
   const cyRef = useRef<cytoscape.Core | null>(null)
 
-  const store = useAppStore((s) => s.store)
-  const prefixes = useAppStore((s) => s.prefixes)
-  const selectedNode = useAppStore((s) => s.selectedNode)
-  const setSelectedNode = useAppStore((s) => s.setSelectedNode)
+  const store = useRdfStore((s) => s.store)
+  const prefixes = useRdfStore((s) => s.prefixes)
+  const selectedNode = useUiStore((s) => s.selectedNode)
+  const setSelectedNode = useUiStore((s) => s.setSelectedNode)
 
   // Initialize cytoscape once
   useEffect(() => {
