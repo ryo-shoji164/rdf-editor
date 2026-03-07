@@ -51,6 +51,15 @@ export function shorten(iri: string, extra?: Record<string, string>): string {
 }
 
 /**
+ * Extract the local name from a full IRI (after the last '#' or '/').
+ * Returns the full IRI if no separator is found.
+ */
+export function localName(iri: string): string {
+  const sep = Math.max(iri.lastIndexOf('#'), iri.lastIndexOf('/'))
+  return sep >= 0 ? iri.slice(sep + 1) : iri
+}
+
+/**
  * Generate @prefix declarations for Turtle output.
  */
 export function prefixDeclarations(extra?: Record<string, string>): string {

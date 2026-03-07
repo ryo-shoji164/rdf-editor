@@ -10,95 +10,95 @@ export const SAMM_C_NS = `${BASE}${C_VER}`
 export const SAMM_E_NS = `${BASE}${E_VER}`
 export const UNIT_NS = `${BASE}${U_VER}`
 
-const mm = (local: string) => `${SAMM_NS}${local}`
-const c = (local: string) => `${SAMM_C_NS}${local}`
+const sammTerm = (local: string) => `${SAMM_NS}${local}`
+const sammCharTerm = (local: string) => `${SAMM_C_NS}${local}`
 
 // Meta-model classes
 export const SAMM = {
-  Aspect: mm('Aspect'),
-  Property: mm('Property'),
-  Characteristic: mm('Characteristic'),
-  Entity: mm('Entity'),
-  Operation: mm('Operation'),
-  Event: mm('Event'),
-  AbstractEntity: mm('AbstractEntity'),
-  AbstractProperty: mm('AbstractProperty'),
-  Constraint: mm('Constraint'),
-  Unit: mm('Unit'),
-  Quantity: mm('Quantity'),
+  Aspect: sammTerm('Aspect'),
+  Property: sammTerm('Property'),
+  Characteristic: sammTerm('Characteristic'),
+  Entity: sammTerm('Entity'),
+  Operation: sammTerm('Operation'),
+  Event: sammTerm('Event'),
+  AbstractEntity: sammTerm('AbstractEntity'),
+  AbstractProperty: sammTerm('AbstractProperty'),
+  Constraint: sammTerm('Constraint'),
+  Unit: sammTerm('Unit'),
+  Quantity: sammTerm('Quantity'),
 } as const
 
 // Meta-model properties
 export const SAMM_PROP = {
-  name: mm('name'),
-  preferredName: mm('preferredName'),
-  description: mm('description'),
-  see: mm('see'),
-  exampleValue: mm('exampleValue'),
-  properties: mm('properties'),
-  operations: mm('operations'),
-  events: mm('events'),
-  characteristic: mm('characteristic'),
-  input: mm('input'),
-  output: mm('output'),
-  parameters: mm('parameters'),
-  dataType: mm('dataType'),
-  optional: mm('optional'),
-  notInPayload: mm('notInPayload'),
-  payloadName: mm('payloadName'),
-  extends: mm('extends'),
+  name: sammTerm('name'),
+  preferredName: sammTerm('preferredName'),
+  description: sammTerm('description'),
+  see: sammTerm('see'),
+  exampleValue: sammTerm('exampleValue'),
+  properties: sammTerm('properties'),
+  operations: sammTerm('operations'),
+  events: sammTerm('events'),
+  characteristic: sammTerm('characteristic'),
+  input: sammTerm('input'),
+  output: sammTerm('output'),
+  parameters: sammTerm('parameters'),
+  dataType: sammTerm('dataType'),
+  optional: sammTerm('optional'),
+  notInPayload: sammTerm('notInPayload'),
+  payloadName: sammTerm('payloadName'),
+  extends: sammTerm('extends'),
 } as const
 
 // Built-in characteristics (samm-c namespace)
 export const SAMM_C = {
   // Simple
-  Text: c('Text'),
-  Boolean: c('Boolean'),
-  Timestamp: c('Timestamp'),
-  Language: c('Language'),
-  Locale: c('Locale'),
-  MimeType: c('MimeType'),
-  ResourcePath: c('ResourcePath'),
-  UnitReference: c('UnitReference'),
+  Text: sammCharTerm('Text'),
+  Boolean: sammCharTerm('Boolean'),
+  Timestamp: sammCharTerm('Timestamp'),
+  Language: sammCharTerm('Language'),
+  Locale: sammCharTerm('Locale'),
+  MimeType: sammCharTerm('MimeType'),
+  ResourcePath: sammCharTerm('ResourcePath'),
+  UnitReference: sammCharTerm('UnitReference'),
 
   // Quantifiable / Measurement
-  Quantifiable: c('Quantifiable'),
-  Measurement: c('Measurement'),
-  Duration: c('Duration'),
+  Quantifiable: sammCharTerm('Quantifiable'),
+  Measurement: sammCharTerm('Measurement'),
+  Duration: sammCharTerm('Duration'),
 
   // Code
-  Code: c('Code'),
+  Code: sammCharTerm('Code'),
 
   // Collection types
-  Collection: c('Collection'),
-  Set: c('Set'),
-  SortedSet: c('SortedSet'),
-  List: c('List'),
-  TimeSeries: c('TimeSeries'),
+  Collection: sammCharTerm('Collection'),
+  Set: sammCharTerm('Set'),
+  SortedSet: sammCharTerm('SortedSet'),
+  List: sammCharTerm('List'),
+  TimeSeries: sammCharTerm('TimeSeries'),
 
   // Structured
-  SingleEntity: c('SingleEntity'),
-  Enumeration: c('Enumeration'),
-  State: c('State'),
-  Either: c('Either'),
-  StructuredValue: c('StructuredValue'),
+  SingleEntity: sammCharTerm('SingleEntity'),
+  Enumeration: sammCharTerm('Enumeration'),
+  State: sammCharTerm('State'),
+  Either: sammCharTerm('Either'),
+  StructuredValue: sammCharTerm('StructuredValue'),
 
   // Properties on characteristics
-  unit: c('unit'),
-  baseCharacteristic: c('baseCharacteristic'),
-  left: c('left'),
-  right: c('right'),
-  values: c('values'),
-  defaultValue: c('defaultValue'),
-  deconstructionRule: c('deconstructionRule'),
-  elements: c('elements'),
-  baseUnit: c('baseUnit'),
-  quantityKind: c('quantityKind'),
-  conversionFactor: c('conversionFactor'),
-  numericConversionFactor: c('numericConversionFactor'),
-  referenceUnit: c('referenceUnit'),
-  commonCode: c('commonCode'),
-  symbol: c('symbol'),
+  unit: sammCharTerm('unit'),
+  baseCharacteristic: sammCharTerm('baseCharacteristic'),
+  left: sammCharTerm('left'),
+  right: sammCharTerm('right'),
+  values: sammCharTerm('values'),
+  defaultValue: sammCharTerm('defaultValue'),
+  deconstructionRule: sammCharTerm('deconstructionRule'),
+  elements: sammCharTerm('elements'),
+  baseUnit: sammCharTerm('baseUnit'),
+  quantityKind: sammCharTerm('quantityKind'),
+  conversionFactor: sammCharTerm('conversionFactor'),
+  numericConversionFactor: sammCharTerm('numericConversionFactor'),
+  referenceUnit: sammCharTerm('referenceUnit'),
+  commonCode: sammCharTerm('commonCode'),
+  symbol: sammCharTerm('symbol'),
 } as const
 
 // Well-known XSD types used in SAMM models

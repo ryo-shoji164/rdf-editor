@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Plus, ChevronRight, Box } from 'lucide-react'
 import { useAppStore } from '../../store/appStore'
 import { findAspects, readAspect, findEntities, readEntity } from '../../lib/samm/reader'
+import { localName } from '../../lib/rdf/namespaces'
 import { newAspectTemplate } from '../../lib/samm/templates'
 import { SAMM_NS } from '../../lib/samm/vocabulary'
 import AspectForm from './AspectForm'
@@ -11,11 +12,6 @@ type Selection =
   | { kind: 'aspect'; iri: string }
   | { kind: 'entity'; iri: string }
   | null
-
-function localName(iri: string) {
-  const sep = Math.max(iri.lastIndexOf('#'), iri.lastIndexOf('/'))
-  return sep >= 0 ? iri.slice(sep + 1) : iri
-}
 
 export default function SammPanel() {
   const store = useAppStore((s) => s.store)

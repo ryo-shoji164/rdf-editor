@@ -36,6 +36,20 @@ interface AppState {
 // Debounce timer for auto-parse
 let parseTimer: ReturnType<typeof setTimeout> | null = null
 
+async function applyParseResult(
+  text: string,
+  set: (partial: Partial<AppState>) => void
+): Promise<void> {
+  set({ isParsing: true })
+  const result = await parseTurtle(text)
+  set({
+    store: result.store,
+    prefixes: result.prefixes,
+    parseError: result.error ?? null,
+    isParsing: false,
+  })
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
   turtleText: FOAF_EXAMPLE,
   store: new N3.Store(),
@@ -51,31 +65,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ turtleText: text, parseError: null })
     // Debounce parsing: 400ms after last keystroke
     if (parseTimer) clearTimeout(parseTimer)
-    parseTimer = setTimeout(async () => {
-      set({ isParsing: true })
-      const result = await parseTurtle(text)
-      set({
-        store: result.store,
-        prefixes: result.prefixes,
-        parseError: result.error ?? null,
-        isParsing: false,
-      })
-    }, 400)
+    parseTimer = setTimeout(() => applyParseResult(text, set), 400)
   },
 
   reparseNow: async () => {
-    if (parseTimer) {
-      clearTimeout(parseTimer)
-      parseTimer = null
-    }
-    set({ isParsing: true })
-    const result = await parseTurtle(get().turtleText)
-    set({
-      store: result.store,
-      prefixes: result.prefixes,
-      parseError: result.error ?? null,
-      isParsing: false,
-    })
+    if (parseTimer) { clearTimeout(parseTimer); parseTimer = null }
+    await applyParseResult(get().turtleText, set)
   },
 
   setActiveView: (view) => set({ activeView: view }),

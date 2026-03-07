@@ -6,8 +6,6 @@ import { storeToCytoscape, CY_STYLE } from './graphUtils'
 
 cytoscape.use(coseBilkent)
 
-let layoutRegistered = false
-
 export default function RdfGraph() {
   const containerRef = useRef<HTMLDivElement>(null)
   const cyRef = useRef<cytoscape.Core | null>(null)

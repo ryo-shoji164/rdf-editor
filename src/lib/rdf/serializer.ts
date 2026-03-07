@@ -16,9 +16,7 @@ export function serializeTurtle(
     const chunks: string[] = []
     const writer = new N3.Writer({
       format: 'Turtle',
-      prefixes: Object.fromEntries(
-        Object.entries(prefixes).map(([k, v]) => [k, v])
-      ),
+      prefixes: { ...prefixes },
     })
 
     for (const quad of store) {

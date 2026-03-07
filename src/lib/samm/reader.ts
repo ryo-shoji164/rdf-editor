@@ -8,6 +8,7 @@ import type {
 } from '../../types/rdf'
 import { SAMM, SAMM_PROP, SAMM_C, SAMM_C_NS, SAMM_NS } from './vocabulary'
 import { getOne, getAll, resolveRdfList } from '../rdf/store'
+import { localName } from '../rdf/namespaces'
 
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
 
@@ -140,13 +141,6 @@ export function readEntity(store: N3.Store, entityIri: string): SammEntity {
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
-
-function localName(iri: string): string {
-  const hash = iri.lastIndexOf('#')
-  const slash = iri.lastIndexOf('/')
-  const sep = Math.max(hash, slash)
-  return sep >= 0 ? iri.slice(sep + 1) : iri
-}
 
 const CHAR_TYPE_MAP: Record<string, SammCharacteristicType> = {
   [SAMM_C.SingleEntity]: 'SingleEntity',

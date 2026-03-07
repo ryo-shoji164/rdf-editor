@@ -3,6 +3,9 @@ import Editor, { Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
 import { useAppStore } from '../../store/appStore'
 
+/** Sentinel column used to highlight an error squiggle to end-of-line in Monaco. */
+const END_OF_LINE_COLUMN = 9999
+
 // Register Turtle language tokens once
 function registerTurtleLanguage(monaco: Monaco) {
   if (monaco.languages.getLanguages().some((l) => l.id === 'turtle')) return
@@ -15,9 +18,12 @@ function registerTurtleLanguage(monaco: Monaco) {
       root: [
         // Comments
         [/#.*$/, 'comment'],
-        // @prefix / @base / PREFIX / BASE directives
-        [/(@prefix|@base)\b/, 'keyword'],
-        [/\b(PREFIX|BASE|SELECT|WHERE|FILTER|OPTIONAL)\b/, 'keyword'],
+        // @prefix / @base directives
+        // NOTE: use string pattern (not regex literal) so Monarch does not
+        // interpret @ as an attribute reference.
+        ['\\@(?:prefix|base)\\b', 'keyword'],
+        // SPARQL-style keywords
+        [/\b(?:PREFIX|BASE|SELECT|WHERE|FILTER|OPTIONAL)\b/, 'keyword'],
         // IRI references
         [/<[^>]*>/, 'string.iri'],
         // Prefixed names
@@ -118,7 +124,7 @@ export default function TurtleEditor() {
           startLineNumber: line,
           startColumn: 1,
           endLineNumber: line,
-          endColumn: 9999,
+          endColumn: END_OF_LINE_COLUMN,
           message: parseError,
         },
       ])

@@ -3,6 +3,7 @@ import { Plus, ChevronDown, ChevronUp } from 'lucide-react'
 import type { SammAspect } from '../../types/rdf'
 import { useAppStore } from '../../store/appStore'
 import { newPropertySnippet } from '../../lib/samm/templates'
+import { localName } from '../../lib/rdf/namespaces'
 import { SAMM_C } from '../../lib/samm/vocabulary'
 import PropertyCard from './PropertyCard'
 
@@ -22,11 +23,6 @@ const CHAR_OPTIONS = [
   { label: 'Enumeration', iri: SAMM_C.Enumeration },
 ]
 
-function localName(iri: string) {
-  const sep = Math.max(iri.lastIndexOf('#'), iri.lastIndexOf('/'))
-  return sep >= 0 ? iri.slice(sep + 1) : iri
-}
-
 function iriNamespace(iri: string) {
   const hash = iri.lastIndexOf('#')
   return hash >= 0 ? iri.slice(0, hash + 1) : iri
@@ -45,19 +41,18 @@ export default function AspectForm({ aspect }: Props) {
   function addProperty() {
     if (!propName.trim()) return
     const snippet = newPropertySnippet(propName.trim(), namespace, charIri)
-    // Insert snippet + update samm:properties list
-    const local = localName(aspect.iri)
-    // Append snippet and try to update the properties list
     const propRef = `:${propName.trim()}`
-    const updated = turtleText
-      .replace(
-        /samm:properties\s*\(\s*\)/,
-        `samm:properties ( ${propRef} )`
-      )
-      .replace(
-        /samm:properties\s*\(([^)]+)\)/,
-        (_, inner) => `samm:properties (${inner.trimEnd()} ${propRef} )`
-      )
+    // Insert the new property reference into the samm:properties list.
+    // A single regex handles both the empty-list and non-empty-list cases.
+    const updated = turtleText.replace(
+      /samm:properties\s*\(([^)]*)\)/,
+      (_, inner) => {
+        const trimmed = inner.trim()
+        return trimmed
+          ? `samm:properties ( ${trimmed} ${propRef} )`
+          : `samm:properties ( ${propRef} )`
+      }
+    )
     setTurtleText(updated + snippet)
     setShowAddProp(false)
     setPropName('')

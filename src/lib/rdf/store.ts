@@ -2,37 +2,36 @@ import * as N3 from 'n3'
 import type { Triple } from '../../types/rdf'
 import { shorten } from './namespaces'
 
+function quadToTriple(quad: N3.Quad): Triple {
+  const obj = quad.object
+  let objectType: Triple['objectType'] = 'iri'
+  let datatype: string | undefined
+  let language: string | undefined
+
+  if (obj.termType === 'Literal') {
+    objectType = 'literal'
+    datatype = obj.datatype?.value
+    language = obj.language || undefined
+  } else if (obj.termType === 'BlankNode') {
+    objectType = 'blank'
+  }
+
+  return {
+    subject: quad.subject.value,
+    predicate: quad.predicate.value,
+    object: obj.value,
+    objectType,
+    datatype,
+    language,
+  }
+}
+
 /**
  * Extract all triples from an N3.Store as plain objects.
  */
-export function storeToTriples(
-  store: N3.Store,
-  prefixes?: Record<string, string>
-): Triple[] {
+export function storeToTriples(store: N3.Store): Triple[] {
   const triples: Triple[] = []
-  for (const quad of store) {
-    const obj = quad.object
-    let objectType: Triple['objectType'] = 'iri'
-    let datatype: string | undefined
-    let language: string | undefined
-
-    if (obj.termType === 'Literal') {
-      objectType = 'literal'
-      datatype = obj.datatype?.value
-      language = obj.language || undefined
-    } else if (obj.termType === 'BlankNode') {
-      objectType = 'blank'
-    }
-
-    triples.push({
-      subject: quad.subject.value,
-      predicate: quad.predicate.value,
-      object: obj.value,
-      objectType,
-      datatype,
-      language,
-    })
-  }
+  for (const quad of store) triples.push(quadToTriple(quad as N3.Quad))
   return triples
 }
 
@@ -50,34 +49,11 @@ export function getSubjects(store: N3.Store): string[] {
 /**
  * Get all triples where subject = iri.
  */
-export function getTriplesForSubject(
-  store: N3.Store,
-  iri: string
-): Triple[] {
-  const results: Triple[] = []
-  const subject = N3.DataFactory.namedNode(iri)
-  for (const quad of store.match(subject, null, null)) {
-    const obj = quad.object
-    let objectType: Triple['objectType'] = 'iri'
-    let datatype: string | undefined
-    let language: string | undefined
-    if (obj.termType === 'Literal') {
-      objectType = 'literal'
-      datatype = obj.datatype?.value
-      language = obj.language || undefined
-    } else if (obj.termType === 'BlankNode') {
-      objectType = 'blank'
-    }
-    results.push({
-      subject: quad.subject.value,
-      predicate: quad.predicate.value,
-      object: obj.value,
-      objectType,
-      datatype,
-      language,
-    })
-  }
-  return results
+export function getTriplesForSubject(store: N3.Store, iri: string): Triple[] {
+  const subjectNode = N3.DataFactory.namedNode(iri)
+  const triples: Triple[] = []
+  for (const quad of store.match(subjectNode, null, null)) triples.push(quadToTriple(quad as N3.Quad))
+  return triples
 }
 
 /**
@@ -88,9 +64,9 @@ export function getOne(
   subject: string,
   predicate: string
 ): string | undefined {
-  const s = N3.DataFactory.namedNode(subject)
-  const p = N3.DataFactory.namedNode(predicate)
-  for (const quad of store.match(s, p, null)) {
+  const subjectNode = N3.DataFactory.namedNode(subject)
+  const predicateNode = N3.DataFactory.namedNode(predicate)
+  for (const quad of store.match(subjectNode, predicateNode, null)) {
     return quad.object.value
   }
   return undefined
@@ -104,10 +80,10 @@ export function getAll(
   subject: string,
   predicate: string
 ): string[] {
-  const s = N3.DataFactory.namedNode(subject)
-  const p = N3.DataFactory.namedNode(predicate)
+  const subjectNode = N3.DataFactory.namedNode(subject)
+  const predicateNode = N3.DataFactory.namedNode(predicate)
   const results: string[] = []
-  for (const quad of store.match(s, p, null)) {
+  for (const quad of store.match(subjectNode, predicateNode, null)) {
     results.push(quad.object.value)
   }
   return results

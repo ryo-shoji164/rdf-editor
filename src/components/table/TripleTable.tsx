@@ -30,7 +30,7 @@ export default function TripleTable() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
-  function fmt(iri: string, type: Triple['objectType'] = 'iri'): string {
+  function formatRdfTerm(iri: string, type: Triple['objectType'] = 'iri'): string {
     if (type === 'literal') return `"${iri}"`
     if (type === 'blank') return `_:${iri}`
     return shorten(iri, prefixes)
@@ -71,10 +71,10 @@ export default function TripleTable() {
                 onClick={() => t.objectType === 'iri' ? setSelectedNode(t.object) : setSelectedNode(t.subject)}
               >
                 <td className="px-3 py-1 text-accent-blue truncate max-w-0 w-1/3">
-                  <span title={t.subject}>{fmt(t.subject)}</span>
+                  <span title={t.subject}>{formatRdfTerm(t.subject)}</span>
                 </td>
                 <td className="px-3 py-1 text-accent-green truncate max-w-0 w-1/3">
-                  <span title={t.predicate}>{fmt(t.predicate)}</span>
+                  <span title={t.predicate}>{formatRdfTerm(t.predicate)}</span>
                 </td>
                 <td className="px-3 py-1 max-w-0 w-1/3">
                   {t.objectType === 'literal' ? (
@@ -89,7 +89,7 @@ export default function TripleTable() {
                     <span className="text-text-muted">_:{t.object}</span>
                   ) : (
                     <span className="text-accent-blue truncate block" title={t.object}>
-                      {fmt(t.object)}
+                      {formatRdfTerm(t.object)}
                     </span>
                   )}
                 </td>

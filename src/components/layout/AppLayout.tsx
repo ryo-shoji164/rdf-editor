@@ -54,6 +54,36 @@ export default function AppLayout() {
     e.target.value = ''
   }
 
+  function renderMainContent() {
+    if (mode === 'samm') {
+      return (
+        <div className="flex h-full">
+          <div className="w-1/2 border-r border-surface-raised overflow-hidden flex flex-col">
+            <TurtleEditor />
+          </div>
+          <div className="w-1/2 overflow-hidden">
+            <SammPanel />
+          </div>
+        </div>
+      )
+    }
+    if (activeView === 'split') {
+      return (
+        <div className="flex h-full">
+          <div className="w-1/2 border-r border-surface-raised overflow-hidden">
+            <TurtleEditor />
+          </div>
+          <div className="w-1/2 overflow-hidden">
+            <RdfGraph />
+          </div>
+        </div>
+      )
+    }
+    if (activeView === 'editor') return <TurtleEditor />
+    if (activeView === 'graph') return <RdfGraph />
+    return <TripleTable />
+  }
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-surface">
       {/* Toolbar */}
@@ -185,32 +215,7 @@ export default function AppLayout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-hidden">
-        {mode === 'samm' ? (
-          // SAMM mode: editor on left, SAMM panel on right
-          <div className="flex h-full">
-            <div className="w-1/2 border-r border-surface-raised overflow-hidden flex flex-col">
-              <TurtleEditor />
-            </div>
-            <div className="w-1/2 overflow-hidden">
-              <SammPanel />
-            </div>
-          </div>
-        ) : activeView === 'split' ? (
-          <div className="flex h-full">
-            <div className="w-1/2 border-r border-surface-raised overflow-hidden">
-              <TurtleEditor />
-            </div>
-            <div className="w-1/2 overflow-hidden">
-              <RdfGraph />
-            </div>
-          </div>
-        ) : activeView === 'editor' ? (
-          <TurtleEditor />
-        ) : activeView === 'graph' ? (
-          <RdfGraph />
-        ) : (
-          <TripleTable />
-        )}
+        {renderMainContent()}
       </main>
 
       <StatusBar />
