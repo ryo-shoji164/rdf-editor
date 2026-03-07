@@ -32,6 +32,7 @@ interface AppState {
   exportAs: (format: RdfFormat) => Promise<void>
   loadExample: (type: 'foaf' | 'samm') => void
   clearAll: () => void
+  applyStoreChange: () => Promise<void>
 }
 
 // Debounce timer for auto-parse
@@ -139,6 +140,12 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   clearAll: () => {
     set({ turtleText: '', store: new N3.Store(), prefixes: {}, parseError: null })
+  },
+
+  applyStoreChange: async () => {
+    const { store, prefixes } = get()
+    const turtle = await serializeTurtle(store, prefixes)
+    set({ turtleText: turtle, parseError: null })
   },
 }))
 
