@@ -1,22 +1,18 @@
 import { useMemo, useState } from 'react'
 import { Plus, ChevronRight, Box } from 'lucide-react'
-import { useAppStore } from '../../store/appStore'
+import { useRdfStore } from '../../store/rdfStore'
 import { findAspects, readAspect, findEntities, readEntity } from '../../lib/samm/reader'
 import { localName } from '../../lib/rdf/namespaces'
 import { newAspectTemplate } from '../../lib/samm/templates'
-import { SAMM_NS } from '../../lib/samm/vocabulary'
 import AspectForm from './AspectForm'
 import EntityForm from './EntityForm'
 
-type Selection =
-  | { kind: 'aspect'; iri: string }
-  | { kind: 'entity'; iri: string }
-  | null
+type Selection = { kind: 'aspect'; iri: string } | { kind: 'entity'; iri: string } | null
 
 export default function SammPanel() {
-  const store = useAppStore((s) => s.store)
-  const turtleText = useAppStore((s) => s.turtleText)
-  const setTurtleText = useAppStore((s) => s.setTurtleText)
+  const store = useRdfStore((s) => s.store)
+  const turtleText = useRdfStore((s) => s.turtleText)
+  const setTurtleText = useRdfStore((s) => s.setTurtleText)
   const [selected, setSelected] = useState<Selection>(null)
   const [showNewAspect, setShowNewAspect] = useState(false)
   const [newName, setNewName] = useState('')

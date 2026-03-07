@@ -52,18 +52,15 @@ export function getSubjects(store: N3.Store): string[] {
 export function getTriplesForSubject(store: N3.Store, iri: string): Triple[] {
   const subjectNode = N3.DataFactory.namedNode(iri)
   const triples: Triple[] = []
-  for (const quad of store.match(subjectNode, null, null)) triples.push(quadToTriple(quad as N3.Quad))
+  for (const quad of store.match(subjectNode, null, null))
+    triples.push(quadToTriple(quad as N3.Quad))
   return triples
 }
 
 /**
  * Get the value of a single predicate for a subject (first match).
  */
-export function getOne(
-  store: N3.Store,
-  subject: string,
-  predicate: string
-): string | undefined {
+export function getOne(store: N3.Store, subject: string, predicate: string): string | undefined {
   const subjectNode = N3.DataFactory.namedNode(subject)
   const predicateNode = N3.DataFactory.namedNode(predicate)
   for (const quad of store.match(subjectNode, predicateNode, null)) {
@@ -75,11 +72,7 @@ export function getOne(
 /**
  * Get all values for a predicate on a subject.
  */
-export function getAll(
-  store: N3.Store,
-  subject: string,
-  predicate: string
-): string[] {
+export function getAll(store: N3.Store, subject: string, predicate: string): string[] {
   const subjectNode = N3.DataFactory.namedNode(subject)
   const predicateNode = N3.DataFactory.namedNode(predicate)
   const results: string[] = []
@@ -112,11 +105,7 @@ export function resolveRdfList(store: N3.Store, listNode: string): string[] {
 /**
  * Get a display label for a node using rdfs:label or localname.
  */
-export function getLabel(
-  store: N3.Store,
-  iri: string,
-  prefixes?: Record<string, string>
-): string {
+export function getLabel(store: N3.Store, iri: string, prefixes?: Record<string, string>): string {
   const label = getOne(store, iri, 'http://www.w3.org/2000/01/rdf-schema#label')
   if (label) return label
   return shorten(iri, prefixes)
