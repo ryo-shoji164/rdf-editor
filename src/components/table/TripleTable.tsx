@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useAppStore } from '../../store/appStore'
+import { useRdfStore } from '../../store/rdfStore'
+import { useUiStore } from '../../store/uiStore'
 import { storeToTriples } from '../../lib/rdf/store'
 import { shorten } from '../../lib/rdf/namespaces'
 import type { Triple } from '../../types/rdf'
@@ -8,9 +9,9 @@ import { Search } from 'lucide-react'
 const PAGE_SIZE = 100
 
 export default function TripleTable() {
-  const store = useAppStore((s) => s.store)
-  const prefixes = useAppStore((s) => s.prefixes)
-  const setSelectedNode = useAppStore((s) => s.setSelectedNode)
+  const store = useRdfStore((s) => s.store)
+  const prefixes = useRdfStore((s) => s.prefixes)
+  const setSelectedNode = useUiStore((s) => s.setSelectedNode)
   const [filter, setFilter] = useState('')
   const [page, setPage] = useState(0)
 

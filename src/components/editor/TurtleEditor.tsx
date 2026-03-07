@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import Editor, { Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
-import { useAppStore } from '../../store/appStore'
+import { useRdfStore } from '../../store/rdfStore'
 
 /** Sentinel column used to highlight an error squiggle to end-of-line in Monaco. */
 const END_OF_LINE_COLUMN = 9999
@@ -97,10 +97,10 @@ function registerTurtleLanguage(monaco: Monaco) {
 }
 
 export default function TurtleEditor() {
-  const turtleText = useAppStore((s) => s.turtleText)
-  const setTurtleText = useAppStore((s) => s.setTurtleText)
-  const parseError = useAppStore((s) => s.parseError)
-  const isParsing = useAppStore((s) => s.isParsing)
+  const turtleText = useRdfStore((s) => s.turtleText)
+  const setTurtleText = useRdfStore((s) => s.setTurtleText)
+  const parseError = useRdfStore((s) => s.parseError)
+  const isParsing = useRdfStore((s) => s.isParsing)
   const editorRef = useRef<MonacoEditor.editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
 

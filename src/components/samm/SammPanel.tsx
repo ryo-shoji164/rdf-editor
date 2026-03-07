@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Plus, ChevronRight, Box } from 'lucide-react'
-import { useAppStore } from '../../store/appStore'
+import { useRdfStore } from '../../store/rdfStore'
 import { findAspects, readAspect, findEntities, readEntity } from '../../lib/samm/reader'
 import { localName } from '../../lib/rdf/namespaces'
 import { newAspectTemplate } from '../../lib/samm/templates'
@@ -14,9 +14,9 @@ type Selection =
   | null
 
 export default function SammPanel() {
-  const store = useAppStore((s) => s.store)
-  const turtleText = useAppStore((s) => s.turtleText)
-  const setTurtleText = useAppStore((s) => s.setTurtleText)
+  const store = useRdfStore((s) => s.store)
+  const turtleText = useRdfStore((s) => s.turtleText)
+  const setTurtleText = useRdfStore((s) => s.setTurtleText)
   const [selected, setSelected] = useState<Selection>(null)
   const [showNewAspect, setShowNewAspect] = useState(false)
   const [newName, setNewName] = useState('')
@@ -66,9 +66,8 @@ export default function SammPanel() {
           <button
             key={iri}
             onClick={() => setSelected({ kind: 'aspect', iri })}
-            className={`flex items-center gap-1.5 px-3 py-1.5 w-full text-left hover:bg-surface-raised truncate ${
-              selected?.iri === iri ? 'bg-surface-raised text-accent-purple' : 'text-text-primary'
-            }`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 w-full text-left hover:bg-surface-raised truncate ${selected?.iri === iri ? 'bg-surface-raised text-accent-purple' : 'text-text-primary'
+              }`}
           >
             <Box size={11} className="text-accent-purple shrink-0" />
             <span className="truncate">{localName(iri)}</span>
@@ -86,9 +85,8 @@ export default function SammPanel() {
               <button
                 key={iri}
                 onClick={() => setSelected({ kind: 'entity', iri })}
-                className={`flex items-center gap-1.5 px-3 py-1.5 w-full text-left hover:bg-surface-raised truncate ${
-                  selected?.iri === iri ? 'bg-surface-raised text-accent-cyan' : 'text-text-primary'
-                }`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 w-full text-left hover:bg-surface-raised truncate ${selected?.iri === iri ? 'bg-surface-raised text-accent-cyan' : 'text-text-primary'
+                  }`}
               >
                 <span className="text-accent-cyan font-bold">E</span>
                 <span className="truncate">{localName(iri)}</span>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus, ChevronDown, ChevronUp } from 'lucide-react'
 import type { SammAspect } from '../../types/rdf'
-import { useAppStore } from '../../store/appStore'
+import { useRdfStore } from '../../store/rdfStore'
 import { newPropertySnippet } from '../../lib/samm/templates'
 import { localName } from '../../lib/rdf/namespaces'
 import { SAMM_C } from '../../lib/samm/vocabulary'
@@ -29,8 +29,8 @@ function iriNamespace(iri: string) {
 }
 
 export default function AspectForm({ aspect }: Props) {
-  const turtleText = useAppStore((s) => s.turtleText)
-  const setTurtleText = useAppStore((s) => s.setTurtleText)
+  const turtleText = useRdfStore((s) => s.turtleText)
+  const setTurtleText = useRdfStore((s) => s.setTurtleText)
   const [showAddProp, setShowAddProp] = useState(false)
   const [propName, setPropName] = useState('')
   const [charIri, setCharIri] = useState(SAMM_C.Text)
