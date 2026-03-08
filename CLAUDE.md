@@ -11,15 +11,29 @@ Read this file fully before making any changes.
 |---|---|---|
 | UI framework | React | 18 |
 | Language | TypeScript | 5 (strict) |
-| Build tool | Vite | 5 |
-| State management | Zustand | 4 |
-| RDF parsing/serializing | N3.js | 1 |
-| Code editor | Monaco Editor | 0.45 |
-| Graph visualization | Cytoscape.js | 3 |
+| Build tool | Vite | 7 |
+| State management | Zustand | 5 |
+| RDF parsing/serializing | N3.js | 2 |
+| JSON-LD processing | jsonld | 8 |
+| Code editor | Monaco Editor (@monaco-editor/react) | 0.45 |
+| Graph visualization | Cytoscape.js + cytoscape-cose-bilkent | 3 |
+| Icons | lucide-react | 0.577 |
 | Styling | Tailwind CSS | 3 |
-| Test framework | Vitest + Testing Library | latest |
+| Internationalization | i18next + i18next-browser-languagedetector | 25 |
+| Unit test framework | Vitest + Testing Library | 4 |
+| E2E test framework | Playwright | 1.58 |
 | Linter | ESLint 9 (flat config) | 9 |
 | Formatter | Prettier | 3 |
+
+---
+
+## Environment & Configuration
+
+- **Node.js**: Version 20 (pinned in `.nvmrc`).
+- **Prettier**: `semi: false`, `singleQuote: true`, `tabWidth: 2`, `printWidth: 100`, `trailingComma: es5`. Markdown files (`*.md`) are excluded via `.prettierignore`.
+- **Tailwind theme**: Catppuccin-inspired dark palette with custom `surface`, `accent`, and `text` color scales. Font: JetBrains Mono. See `tailwind.config.js`.
+- **Vite base path**: Automatically set to `/rdf-editor/` when `GITHUB_ACTIONS` env is detected, for GitHub Pages deployment.
+- **Dependabot**: Configured for weekly npm and GitHub Actions updates (Monday 09:00 JST, max 5 open PRs).
 
 ---
 
@@ -27,22 +41,45 @@ Read this file fully before making any changes.
 
 ```
 src/
-├── components/          # React components (UI only, no business logic)
-│   ├── editor/          # Monaco editor wrapper
-│   ├── graph/           # Cytoscape graph view
-│   ├── layout/          # App shell (AppLayout, StatusBar)
-│   ├── samm/            # SAMM-domain-specific panels
-│   └── table/           # Triple table view
-├── lib/                 # Pure business logic (no React)
-│   ├── rdf/             # RDF parsing, serializing, store utilities
-│   └── samm/            # SAMM vocabulary, templates, reader
-├── store/               # Zustand stores
-│   ├── rdfStore.ts      # RDF data (turtleText, N3.Store, prefixes, parseError)
-│   ├── uiStore.ts       # UI state (activeView, selectedNode)
-│   ├── domainStore.ts   # Domain plugin registry
-│   └── validationStore.ts  # SHACL validation results (future)
-├── types/               # Shared TypeScript type definitions
-└── test/                # Test setup files
+├── components/              # React components (UI only, no business logic)
+│   ├── editor/              # Monaco editor wrapper (TurtleEditor.tsx)
+│   ├── graph/               # Cytoscape graph view + editing dialogs
+│   │   ├── RdfGraph.tsx
+│   │   ├── AddNodeDialog.tsx
+│   │   ├── AddEdgeDialog.tsx
+│   │   ├── GraphContextMenu.tsx
+│   │   ├── GraphLegend.tsx
+│   │   └── graphUtils.ts
+│   ├── layout/              # App shell (AppLayout, StatusBar, TemplateMenu)
+│   ├── samm/                # SAMM-domain-specific panels & forms
+│   └── table/               # Triple table view
+├── lib/                     # Pure business logic (no React)
+│   ├── domains/             # Domain plugin registry
+│   │   ├── registry.ts
+│   │   └── freePlugin.ts
+│   ├── editor/              # Monaco editor customization
+│   │   ├── languageSetup.ts
+│   │   ├── completionProvider.ts
+│   │   └── diagnosticsProvider.ts
+│   ├── i18n/                # Internationalization
+│   │   ├── i18n.ts          # i18next configuration
+│   │   └── locales/         # en.json, ja.json
+│   ├── rdf/                 # RDF parsing, serializing, store utilities
+│   └── samm/                # SAMM vocabulary, templates, reader, plugin
+├── store/                   # Zustand stores
+│   ├── rdfStore.ts          # RDF data (turtleText, N3.Store, prefixes, parseError)
+│   ├── uiStore.ts           # UI state (activeView, selectedNode)
+│   ├── domainStore.ts       # Domain plugin registry state
+│   ├── validationStore.ts   # SHACL validation results (future)
+│   ├── initDomains.ts       # Domain initialization at startup
+│   └── appStore.ts          # ⚠ Legacy monolithic store — do not extend
+├── types/                   # Shared TypeScript type definitions
+│   ├── domain.ts            # DomainPlugin, DomainTemplate, VocabularyItem
+│   └── rdf.ts               # RdfFormat, Triple, SAMM model types
+└── test/                    # Test setup files
+
+tests/
+└── e2e/                     # Playwright E2E tests
 ```
 
 ---
@@ -52,10 +89,16 @@ src/
 All code is enforced by **ESLint** and **Prettier**. Run before committing:
 
 ```bash
-npm run lint        # check
-npm run lint:fix    # auto-fix
-npm run format      # format all src files
-npm run typecheck   # TypeScript type check
+npm run lint            # ESLint check
+npm run lint:fix        # ESLint auto-fix
+npm run format          # Prettier format all src files
+npm run format:check    # Prettier check (CI-friendly)
+npm run typecheck       # TypeScript type check (tsc --noEmit)
+npm run test            # Vitest run (unit tests)
+npm run test:watch      # Vitest watch mode
+npm run test:coverage   # Vitest with coverage
+npm run e2e             # Playwright E2E tests (Chromium, Firefox, WebKit)
+npm run audit           # npm audit --audit-level=high
 ```
 
 A pre-commit hook runs `lint-staged` automatically (ESLint + Prettier on staged files).
@@ -108,6 +151,7 @@ import type { RdfFormat } from '../../types/rdf'
   ```
 - **No business logic in components.** Move parsing, serializing, and RDF manipulation to `src/lib/`.
 - Side effects that span multiple stores belong in store actions, not components.
+- `rdfStore.setTurtleText()` uses a **400ms debounce** before triggering a re-parse. Call `reparseNow()` to parse immediately (e.g., after file import).
 
 ---
 
@@ -121,11 +165,34 @@ import type { RdfFormat } from '../../types/rdf'
 
 ---
 
+## Internationalization (i18n)
+
+- Uses **i18next** with browser language detection (`i18next-browser-languagedetector`).
+- Configuration: `src/lib/i18n/i18n.ts`.
+- Locale files: `src/lib/i18n/locales/en.json` (English), `src/lib/i18n/locales/ja.json` (Japanese).
+- All user-facing strings in components should use the `useTranslation` hook — do not hardcode English text.
+- When adding new UI text, add keys to **both** `en.json` and `ja.json`.
+
+---
+
+## Monaco Editor Customization
+
+Custom Turtle language support is implemented in `src/lib/editor/`:
+
+- **`languageSetup.ts`** — Registers the Turtle language with Monaco (tokenization, brackets, comments).
+- **`completionProvider.ts`** — Provides auto-completion for prefixed names, IRIs, and domain vocabulary items.
+- **`diagnosticsProvider.ts`** — Feeds parse errors from `rdfStore` into Monaco as editor markers.
+
+These are pure library functions (no React). The component in `src/components/editor/` consumes them.
+
+---
+
 ## Testing
 
-- Tests live next to source under `__tests__/` subdirectories (e.g., `src/lib/rdf/__tests__/`).
+- **Unit tests** live in `__tests__/` subdirectories next to source (preferred) or co-located with the module (e.g., `parser.test.ts` next to `parser.ts`). Prefer `__tests__/` for new tests.
 - Test files are named `<module>.test.ts` or `<module>.test.tsx`.
-- Run tests: `npm run test:run`
+- Run unit tests: `npm run test` (or `npm run test:watch` for development).
+- **E2E tests** live in `tests/e2e/` at the project root and run via Playwright across Chromium, Firefox, and WebKit: `npm run e2e`.
 - Write unit tests for all functions in `src/lib/`. Component tests are welcome but not required.
 
 ---
@@ -147,7 +214,7 @@ interface DomainPlugin {
 }
 ```
 
-Register plugins in `src/store/initDomains.ts`. Do not hard-code domain logic in `AppLayout` or other UI components.
+Register plugins via the domain registry at `src/lib/domains/registry.ts`. The registry is initialized at startup in `src/store/initDomains.ts`, which registers the built-in `freePlugin` and `sammPlugin`. Domain state lives in `src/store/domainStore.ts`. Do not hard-code domain logic in `AppLayout` or other UI components.
 
 ---
 
@@ -258,3 +325,4 @@ AI agents **must** follow these rules when writing code for this repository. Vio
 - Do not store derived state in Zustand — compute it in selectors or `useMemo`.
 - Do not add new dependencies without justification in the PR description.
 - Do not edit `node_modules/` or generated files in `dist/`.
+- Do not extend `appStore.ts` — it is a legacy monolithic store. Use the split stores (`rdfStore`, `uiStore`, `domainStore`).
