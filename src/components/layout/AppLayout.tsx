@@ -1,5 +1,5 @@
-import { useRef } from 'react'
-import { Code2, Network, Table2, Columns2, FileDown, FileUp, Trash2, Layers } from 'lucide-react'
+import { useRef, useState, useEffect } from 'react'
+import { Code2, Network, Table2, Columns2, FileDown, FileUp, Trash2, Layers, HelpCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore, type ActiveView } from '../../store/uiStore'
@@ -10,6 +10,7 @@ import TripleTable from '../table/TripleTable'
 import SammPanel from '../samm/SammPanel'
 import StatusBar from './StatusBar'
 import TemplateMenu from './TemplateMenu'
+import OnboardingTour from '../onboarding/OnboardingTour'
 
 const VIEW_BUTTONS: { id: ActiveView; icon: React.ReactNode }[] = [
   { id: 'editor', icon: <Code2 size={15} /> },
@@ -32,6 +33,17 @@ export default function AppLayout() {
   const clearAll = useRdfStore((s) => s.clearAll)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [runTour, setRunTour] = useState(false)
+
+  const ONBOARDING_KEY = 'rdf-editor-onboarding-complete'
+
+  // Start tutorial automatically for new users
+  useEffect(() => {
+    const isComplete = localStorage.getItem(ONBOARDING_KEY)
+    if (!isComplete) {
+      setRunTour(true)
+    }
+  }, [])
 
   // Convert Map to sorted array for rendering
   const domainList = Array.from(registeredDomains.values())
@@ -87,8 +99,9 @@ export default function AppLayout() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-surface">
+      <OnboardingTour run={runTour} onFinish={() => setRunTour(false)} />
       {/* Toolbar */}
-      <header className="flex items-center gap-1 px-3 py-1.5 border-b border-surface-raised bg-surface-alt shrink-0">
+      <header id="joyride-toolbar" className="flex items-center gap-1 px-3 py-1.5 border-b border-surface-raised bg-surface-alt shrink-0">
         {/* App name */}
         <div className="flex items-center gap-1.5 mr-3">
           <Layers size={16} className="text-accent-purple" />
@@ -96,18 +109,17 @@ export default function AppLayout() {
         </div>
 
         {/* Mode toggle — dynamically generated from registered domains */}
-        <div className="flex rounded overflow-hidden border border-surface-raised mr-2">
+        <div id="joyride-mode-toggle" className="flex rounded overflow-hidden border border-surface-raised mr-2">
           {domainList.map((domain) => (
             <button
               key={domain.id}
               onClick={() => setActiveDomain(domain.id)}
-              className={`px-3 py-1 text-xs capitalize transition-colors ${
-                activeDomainId === domain.id
-                  ? domain.id === 'samm'
-                    ? 'bg-accent-purple text-surface font-medium'
-                    : 'bg-accent-blue text-surface font-medium'
-                  : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
-              }`}
+              className={`px-3 py-1 text-xs capitalize transition-colors ${activeDomainId === domain.id
+                ? domain.id === 'samm'
+                  ? 'bg-accent-purple text-surface font-medium'
+                  : 'bg-accent-blue text-surface font-medium'
+                : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
+                }`}
             >
               {domain.label}
             </button>
@@ -116,17 +128,16 @@ export default function AppLayout() {
 
         {/* View toggle (hidden in SAMM mode) */}
         {activeDomainId !== 'samm' && (
-          <div className="flex rounded overflow-hidden border border-surface-raised mr-2">
+          <div id="joyride-view-toggle" className="flex rounded overflow-hidden border border-surface-raised mr-2">
             {VIEW_BUTTONS.map((btn) => (
               <button
                 key={btn.id}
                 onClick={() => setActiveView(btn.id)}
                 title={t(`layout.${btn.id}`)}
-                className={`px-2.5 py-1 flex items-center gap-1 text-xs transition-colors ${
-                  activeView === btn.id
-                    ? 'bg-surface-raised text-text-primary'
-                    : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
-                }`}
+                className={`px-2.5 py-1 flex items-center gap-1 text-xs transition-colors ${activeView === btn.id
+                  ? 'bg-surface-raised text-text-primary'
+                  : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
+                  }`}
               >
                 {btn.icon}
                 <span className="hidden sm:inline">{t(`layout.${btn.id}`)}</span>
@@ -137,7 +148,9 @@ export default function AppLayout() {
 
         <div className="ml-auto flex items-center gap-1">
           {/* Examples — dynamically generated from registered domains */}
-          <TemplateMenu />
+          <div id="joyride-templates">
+            <TemplateMenu />
+          </div>
 
           {/* Language Switcher */}
           <button
@@ -200,6 +213,18 @@ export default function AppLayout() {
             className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-muted hover:text-accent-red hover:bg-surface-raised rounded"
           >
             <Trash2 size={13} />
+          </button>
+
+          <div className="w-px h-4 bg-surface-raised mx-1"></div>
+
+          {/* Help / Retrigger Tutorial */}
+          <button
+            id="joyride-help"
+            onClick={() => setRunTour(true)}
+            className="flex items-center justify-center p-1.5 text-text-muted hover:text-accent-blue hover:bg-surface-raised rounded transition-colors"
+            title="Start Tutorial"
+          >
+            <HelpCircle size={16} />
           </button>
         </div>
       </header>
