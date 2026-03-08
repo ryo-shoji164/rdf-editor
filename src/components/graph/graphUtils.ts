@@ -1,6 +1,6 @@
 import type * as N3 from 'n3'
 import type { CyNodeData, CyEdgeData } from '../../types/rdf'
-import { shorten } from '../../lib/rdf/namespaces'
+import { shorten, localName } from '../../lib/rdf/namespaces'
 
 export interface CyElements {
   nodes: { data: CyNodeData }[]
@@ -10,14 +10,6 @@ export interface CyElements {
 const MAX_NODES = 300 // Performance guard
 
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
-
-/**
- * Extract the local name from a full IRI (after last '#' or '/').
- */
-function localName(iri: string): string {
-  const sep = Math.max(iri.lastIndexOf('#'), iri.lastIndexOf('/'))
-  return sep >= 0 ? iri.slice(sep + 1) : iri
-}
 
 /**
  * Build a map of subject IRI → rdf:type IRIs from the store.

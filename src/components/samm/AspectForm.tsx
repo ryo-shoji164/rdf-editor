@@ -3,7 +3,7 @@ import { Plus, ChevronDown, ChevronUp } from 'lucide-react'
 import type { SammAspect } from '../../types/rdf'
 import { useRdfStore } from '../../store/rdfStore'
 import { newPropertySnippet } from '../../lib/samm/templates'
-import { localName } from '../../lib/rdf/namespaces'
+import { localName, iriNamespace } from '../../lib/rdf/namespaces'
 import { SAMM_C } from '../../lib/samm/vocabulary'
 import PropertyCard from './PropertyCard'
 
@@ -22,11 +22,6 @@ const CHAR_OPTIONS = [
   { label: 'List', iri: SAMM_C.List },
   { label: 'Enumeration', iri: SAMM_C.Enumeration },
 ]
-
-function iriNamespace(iri: string) {
-  const hash = iri.lastIndexOf('#')
-  return hash >= 0 ? iri.slice(0, hash + 1) : iri
-}
 
 export default function AspectForm({ aspect }: Props) {
   const turtleText = useRdfStore((s) => s.turtleText)
