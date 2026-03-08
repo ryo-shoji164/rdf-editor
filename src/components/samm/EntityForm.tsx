@@ -16,7 +16,10 @@ export default function EntityForm({ entity }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <div className="text-sm font-medium text-accent-cyan">{localName(entity.iri)}</div>
-          <div className="text-[10px] text-text-muted font-mono truncate max-w-xs" title={entity.iri}>
+          <div
+            className="text-[10px] text-text-muted font-mono truncate max-w-xs"
+            title={entity.iri}
+          >
             {entity.iri}
           </div>
         </div>

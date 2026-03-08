@@ -2,36 +2,28 @@ import { create } from 'zustand'
 import * as N3 from 'n3'
 import { parseTurtle, parseNTriples, parseJsonLd } from '../lib/rdf/parser'
 import { serializeTurtle, serializeNTriples, downloadText } from '../lib/rdf/serializer'
-import { FOAF_EXAMPLE, SAMM_EXAMPLE } from '../lib/samm/templates'
 import type { RdfFormat } from '../types/rdf'
 import type * as JsonLdModule from 'jsonld'
 
-export type ActiveView = 'editor' | 'graph' | 'table' | 'split'
-export type AppMode = 'free' | 'samm'
-
-interface AppState {
-  // RDF core
+export interface RdfState {
+  // RDF core data
   turtleText: string
   store: N3.Store
   prefixes: Record<string, string>
   parseError: string | null
   isParsing: boolean
 
-  // UI state
-  activeView: ActiveView
-  mode: AppMode
-  selectedNode: string | null
-
   // Actions
   setTurtleText: (text: string) => void
   reparseNow: () => Promise<void>
-  setActiveView: (view: ActiveView) => void
-  setMode: (mode: AppMode) => void
-  setSelectedNode: (iri: string | null) => void
   importFile: (content: string, format: RdfFormat) => Promise<void>
   exportAs: (format: RdfFormat) => Promise<void>
-  loadExample: (type: 'foaf' | 'samm') => void
   clearAll: () => void
+
+  /**
+   * Re-serialize the current N3.Store back to Turtle and update turtleText.
+   * Used by storeWriter after direct Store mutations (graph/table editing).
+   */
   applyStoreChange: () => Promise<void>
 }
 
@@ -40,7 +32,7 @@ let parseTimer: ReturnType<typeof setTimeout> | null = null
 
 async function applyParseResult(
   text: string,
-  set: (partial: Partial<AppState>) => void
+  set: (partial: Partial<RdfState>) => void
 ): Promise<void> {
   set({ isParsing: true })
   const result = await parseTurtle(text)
@@ -52,16 +44,12 @@ async function applyParseResult(
   })
 }
 
-export const useAppStore = create<AppState>((set, get) => ({
-  turtleText: FOAF_EXAMPLE,
+export const useRdfStore = create<RdfState>((set, get) => ({
+  turtleText: '',
   store: new N3.Store(),
   prefixes: {},
   parseError: null,
   isParsing: false,
-
-  activeView: 'split',
-  mode: 'free',
-  selectedNode: null,
 
   setTurtleText: (text) => {
     set({ turtleText: text, parseError: null })
@@ -77,10 +65,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
     await applyParseResult(get().turtleText, set)
   },
-
-  setActiveView: (view) => set({ activeView: view }),
-  setMode: (mode) => set({ mode }),
-  setSelectedNode: (iri) => set({ selectedNode: iri }),
 
   importFile: async (content, format) => {
     let parseResult
@@ -131,13 +115,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  loadExample: (type) => {
-    const text = type === 'samm' ? SAMM_EXAMPLE : FOAF_EXAMPLE
-    const newMode: AppMode = type === 'samm' ? 'samm' : 'free'
-    set({ turtleText: text, parseError: null, mode: newMode })
-    get().reparseNow()
-  },
-
   clearAll: () => {
     set({ turtleText: '', store: new N3.Store(), prefixes: {}, parseError: null })
   },
@@ -145,11 +122,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   applyStoreChange: async () => {
     const { store, prefixes } = get()
     const turtle = await serializeTurtle(store, prefixes)
-    set({ turtleText: turtle, parseError: null })
+    set({ turtleText: turtle })
   },
 }))
-
-// Initial parse on load
-setTimeout(() => {
-  useAppStore.getState().reparseNow()
-}, 0)
