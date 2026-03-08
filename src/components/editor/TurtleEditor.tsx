@@ -85,7 +85,7 @@ export default function TurtleEditor() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div id="joyride-editor" className="flex flex-col h-full">
       <Editor
         height="100%"
         language="turtle"

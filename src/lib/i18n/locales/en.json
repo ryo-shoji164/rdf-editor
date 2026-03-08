@@ -35,6 +35,26 @@
         "addNode": "Add Node...",
         "addEdge": "Add Edge from Here..."
     },
+    "onboarding": {
+        "buttons": {
+            "back": "Back",
+            "close": "Close",
+            "last": "Done",
+            "next": "Next",
+            "skip": "Skip"
+        },
+        "steps": {
+            "welcome": "Welcome to RDF Editor! Let's take a quick tour of the main features.",
+            "toolbar": "The toolbar contains global actions like saving, loading, and clearing data.",
+            "modeToggle": "Switch between different RDF domains (like BIM or Schema.org) to get specialized templates and styling.",
+            "viewToggle": "Switch between Editor, Graph, and Table views, or use the Split view to see both.",
+            "templates": "Quickly start with predefined RDF templates for your active domain.",
+            "editor": "Write and edit your RDF data directly in Turtle syntax with autocompletion and syntax highlighting.",
+            "graph": "Visualize your RDF as an interactive graph. You can add nodes and edges directly from the toolbar.",
+            "table": "View and edit your triples in a structured table format. Double-click any cell to edit it.",
+            "help": "Need a refresher? Click this help button to restart this tutorial anytime."
+        }
+    },
     "validation": {
         "title": "SHACL Validation",
         "toggleLabel": "Validate",
