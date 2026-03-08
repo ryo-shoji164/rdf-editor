@@ -87,7 +87,7 @@ test.describe('Graph Interactions - Context Menu', () => {
         await toolbarAddEdgeBtn.click();
 
         // The Add Edge dialog should appear
-        const dialogHeading = page.getByRole('heading', { name: 'Add New Edge' });
+        const dialogHeading = page.getByRole('heading', { name: 'Add Edge', exact: true });
         await expect(dialogHeading).toBeVisible();
 
         // Fill out the dialog 
