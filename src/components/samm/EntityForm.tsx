@@ -1,13 +1,9 @@
 import type { SammEntity } from '../../types/rdf'
+import { localName } from '../../lib/rdf/namespaces'
 import PropertyCard from './PropertyCard'
 
 interface Props {
   entity: SammEntity
-}
-
-function localName(iri: string) {
-  const sep = Math.max(iri.lastIndexOf('#'), iri.lastIndexOf('/'))
-  return sep >= 0 ? iri.slice(sep + 1) : iri
 }
 
 export default function EntityForm({ entity }: Props) {

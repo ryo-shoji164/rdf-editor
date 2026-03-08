@@ -1,16 +1,21 @@
 import { create } from 'zustand'
 import * as N3 from 'n3'
 import { parseTurtle, parseNTriples, parseJsonLd } from '../lib/rdf/parser'
+import type { ParseError } from '../lib/rdf/parser'
 import { serializeTurtle, serializeNTriples, downloadText } from '../lib/rdf/serializer'
 import type { RdfFormat } from '../types/rdf'
 import type * as JsonLdModule from 'jsonld'
+import { useValidationStore } from './validationStore'
 
 export interface RdfState {
   // RDF core data
   turtleText: string
   store: N3.Store
   prefixes: Record<string, string>
+  /** @deprecated Use `parseErrors` for structured error information. */
   parseError: string | null
+  /** Structured list of parse errors with location information. */
+  parseErrors: ParseError[]
   isParsing: boolean
 
   // Actions
@@ -27,6 +32,8 @@ export interface RdfState {
   applyStoreChange: () => Promise<void>
 }
 
+export type { ParseError }
+
 // Debounce timer for auto-parse
 let parseTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -40,8 +47,13 @@ async function applyParseResult(
     store: result.store,
     prefixes: result.prefixes,
     parseError: result.error ?? null,
+    parseErrors: result.errors ?? [],
     isParsing: false,
   })
+  // Trigger SHACL validation after a successful parse
+  if (!result.error) {
+    useValidationStore.getState().runValidation(result.store, text)
+  }
 }
 
 export const useRdfStore = create<RdfState>((set, get) => ({
@@ -49,10 +61,11 @@ export const useRdfStore = create<RdfState>((set, get) => ({
   store: new N3.Store(),
   prefixes: {},
   parseError: null,
+  parseErrors: [],
   isParsing: false,
 
   setTurtleText: (text) => {
-    set({ turtleText: text, parseError: null })
+    set({ turtleText: text, parseError: null, parseErrors: [] })
     // Debounce parsing: 400ms after last keystroke
     if (parseTimer) clearTimeout(parseTimer)
     parseTimer = setTimeout(() => applyParseResult(text, set), 400)
@@ -79,7 +92,7 @@ export const useRdfStore = create<RdfState>((set, get) => ({
     }
 
     if (parseResult.error) {
-      set({ parseError: parseResult.error })
+      set({ parseError: parseResult.error, parseErrors: parseResult.errors ?? [] })
       return
     }
 
@@ -116,13 +129,13 @@ export const useRdfStore = create<RdfState>((set, get) => ({
   },
 
   clearAll: () => {
-    set({ turtleText: '', store: new N3.Store(), prefixes: {}, parseError: null })
+    set({ turtleText: '', store: new N3.Store(), prefixes: {}, parseError: null, parseErrors: [] })
   },
 
   applyStoreChange: async () => {
     const { store, prefixes } = get()
     const turtle = await serializeTurtle(store, prefixes)
-    set({ turtleText: turtle })
+    set({ turtleText: turtle, parseError: null, parseErrors: [] })
     // Reparse the newly generated Turtle to replace the store with a new instance,
     // which triggers React's state change detection and invalidates memoized lists.
     await get().reparseNow()

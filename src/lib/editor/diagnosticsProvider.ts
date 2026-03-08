@@ -9,6 +9,7 @@
  */
 import type { Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
+import type { ParseError } from '../rdf/parser'
 
 /** Sentinel column used to highlight errors to end-of-line. */
 const END_OF_LINE_COLUMN = 9999
@@ -41,6 +42,8 @@ let currentDiagnostics: DiagnosticItem[] = []
 /**
  * Create a diagnostic from a parse error string.
  * Extracts line number from common parse error patterns.
+ *
+ * @deprecated Prefer `fromParseErrors` which uses structured ParseError objects.
  */
 export function fromParseError(error: string | null): DiagnosticItem[] {
   if (!error) return []
@@ -57,6 +60,20 @@ export function fromParseError(error: string | null): DiagnosticItem[] {
       source: 'parser',
     },
   ]
+}
+
+/**
+ * Convert an array of structured ParseError objects into DiagnosticItems.
+ * Preserves precise line/column information from the parser.
+ */
+export function fromParseErrors(errors: ParseError[]): DiagnosticItem[] {
+  return errors.map((e) => ({
+    message: e.message,
+    severity: e.severity,
+    line: e.line,
+    startColumn: e.column,
+    source: 'parser',
+  }))
 }
 
 /**

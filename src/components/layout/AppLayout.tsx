@@ -1,9 +1,22 @@
 import { useRef, useState, useEffect } from 'react'
-import { Code2, Network, Table2, Columns2, FileDown, FileUp, Trash2, Layers, HelpCircle } from 'lucide-react'
+import {
+  Code2,
+  Network,
+  Table2,
+  Columns2,
+  FileDown,
+  FileUp,
+  Trash2,
+  Layers,
+  HelpCircle,
+  Shield,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore, type ActiveView } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
+import { useValidationStore } from '../../store/validationStore'
+import { detectFormatFromFilename } from '../../lib/rdf/parser'
 import TurtleEditor from '../editor/TurtleEditor'
 import RdfGraph from '../graph/RdfGraph'
 import TripleTable from '../table/TripleTable'
@@ -11,6 +24,7 @@ import SammPanel from '../samm/SammPanel'
 import StatusBar from './StatusBar'
 import TemplateMenu from './TemplateMenu'
 import OnboardingTour from '../onboarding/OnboardingTour'
+import ValidationPanel from './ValidationPanel'
 
 const VIEW_BUTTONS: { id: ActiveView; icon: React.ReactNode }[] = [
   { id: 'editor', icon: <Code2 size={15} /> },
@@ -32,6 +46,10 @@ export default function AppLayout() {
   const exportAs = useRdfStore((s) => s.exportAs)
   const clearAll = useRdfStore((s) => s.clearAll)
 
+  const validationResults = useValidationStore((s) => s.results)
+  const isValidating = useValidationStore((s) => s.isValidating)
+
+  const [showValidation, setShowValidation] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [runTour, setRunTour] = useState(false)
 
@@ -54,14 +72,7 @@ export default function AppLayout() {
     const reader = new FileReader()
     reader.onload = (ev) => {
       const content = ev.target?.result as string
-      const ext = file.name.split('.').pop()?.toLowerCase()
-      if (ext === 'jsonld' || ext === 'json') {
-        importFile(content, 'jsonld')
-      } else if (ext === 'nt') {
-        importFile(content, 'n-triples')
-      } else {
-        importFile(content, 'turtle')
-      }
+      importFile(content, detectFormatFromFilename(file.name))
     }
     reader.readAsText(file)
     e.target.value = ''
@@ -161,6 +172,26 @@ export default function AppLayout() {
             {i18n.language.startsWith('ja') ? 'EN' : 'JA'}
           </button>
 
+          {/* SHACL Validation toggle */}
+          <button
+            onClick={() => setShowValidation((v) => !v)}
+            title={t('validation.toggleTooltip')}
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded transition-colors ${showValidation
+                ? 'bg-accent-purple text-surface font-medium'
+                : validationResults.length > 0
+                  ? 'text-accent-red hover:bg-surface-raised'
+                  : isValidating
+                    ? 'text-accent-yellow hover:bg-surface-raised'
+                    : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
+              }`}
+          >
+            <Shield size={13} />
+            <span className="hidden sm:inline">{t('validation.toggleLabel')}</span>
+            {!showValidation && validationResults.length > 0 && (
+              <span className="text-accent-red">{validationResults.length}</span>
+            )}
+          </button>
+
           {/* Import */}
           <input
             ref={fileInputRef}
@@ -230,7 +261,10 @@ export default function AppLayout() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-hidden">{renderMainContent()}</main>
+      <main className="flex-1 overflow-hidden min-h-0">{renderMainContent()}</main>
+
+      {/* SHACL Validation Panel */}
+      {showValidation && <ValidationPanel />}
 
       <StatusBar />
     </div>

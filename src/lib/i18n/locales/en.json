@@ -54,5 +54,22 @@
             "table": "View and edit your triples in a structured table format. Double-click any cell to edit it.",
             "help": "Need a refresher? Click this help button to restart this tutorial anytime."
         }
+    },
+    "validation": {
+        "title": "SHACL Validation",
+        "toggleLabel": "Validate",
+        "toggleTooltip": "Toggle SHACL validation panel",
+        "validate": "Run",
+        "validating": "Validating…",
+        "conforms": "Conforms",
+        "violations": "violation(s)",
+        "shapesLabel": "SHACL Shapes (Turtle)",
+        "shapesPlaceholder": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n\n# Paste your SHACL shapes here",
+        "resultsLabel": "Violations",
+        "noShapes": "Paste SHACL shapes on the left and click Run.",
+        "noViolations": "No violations found.",
+        "focusNode": "Focus node",
+        "path": "Path",
+        "line": "Line"
     }
 }

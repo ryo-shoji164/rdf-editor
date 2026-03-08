@@ -1,6 +1,7 @@
 import type * as N3 from 'n3'
 import type { CyNodeData, CyEdgeData } from '../../types/rdf'
-import { shorten } from '../../lib/rdf/namespaces'
+import type { CytoscapeStyleRule } from '../../types/domain'
+import { shorten, localName } from '../../lib/rdf/namespaces'
 
 export interface CyElements {
   nodes: { data: CyNodeData }[]
@@ -10,14 +11,6 @@ export interface CyElements {
 const MAX_NODES = 300 // Performance guard
 
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
-
-/**
- * Extract the local name from a full IRI (after last '#' or '/').
- */
-function localName(iri: string): string {
-  const sep = Math.max(iri.lastIndexOf('#'), iri.lastIndexOf('/'))
-  return sep >= 0 ? iri.slice(sep + 1) : iri
-}
 
 /**
  * Build a map of subject IRI → rdf:type IRIs from the store.
@@ -143,8 +136,7 @@ export const TYPE_COLORS: Record<string, { bg: string; border: string; label: st
   Entity: { bg: '#3a2a1a', border: '#fab387', label: 'samm:Entity' },
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const CY_STYLE: any[] = [
+export const CY_STYLE: CytoscapeStyleRule[] = [
   // ─── Base node style ──────────────────────────────────────────
   {
     selector: 'node',
@@ -204,6 +196,16 @@ export const CY_STYLE: any[] = [
       'border-width': 2.5,
     },
   })),
+
+  // ─── SHACL violation highlight ────────────────────────────────
+  {
+    selector: 'node.violation',
+    style: {
+      'border-color': '#f38ba8',
+      'border-width': 3,
+      'background-color': '#3b1f2a',
+    },
+  },
 
   // ─── Selection ────────────────────────────────────────────────
   {
