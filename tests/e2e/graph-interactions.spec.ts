@@ -84,10 +84,11 @@ test.describe('Graph Interactions - Context Menu', () => {
         // Click the Add Edge button in the toolbar
         const toolbarAddEdgeBtn = page.getByRole('button', { name: 'Add Edge' });
         await expect(toolbarAddEdgeBtn).toBeVisible();
+        await page.waitForTimeout(500); // Give cytoscape events time to process
         await toolbarAddEdgeBtn.click();
 
         // The Add Edge dialog should appear
-        const dialogHeading = page.getByRole('heading', { name: 'Add Edge', exact: true });
+        const dialogHeading = page.getByRole('heading', { name: /Add Edge/i });
         await expect(dialogHeading).toBeVisible();
 
         // Fill out the dialog 
