@@ -7,7 +7,13 @@ import {
 } from '../completionProvider'
 import type { Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
-import { fromParseError, setDiagnostics, getDiagnostics } from '../diagnosticsProvider'
+import {
+  fromParseError,
+  fromParseErrors,
+  setDiagnostics,
+  getDiagnostics,
+} from '../diagnosticsProvider'
+import type { ParseError } from '../../rdf/parser'
 
 // ─── Completion Provider Tests ────────────────────────────────────
 
@@ -162,6 +168,49 @@ describe('diagnosticsProvider', () => {
       setDiagnostics([{ message: 'b', severity: 'warning' }])
       expect(getDiagnostics()).toHaveLength(1)
       expect(getDiagnostics()[0].message).toBe('b')
+    })
+  })
+
+  describe('fromParseErrors', () => {
+    it('returns empty array for empty input', () => {
+      expect(fromParseErrors([])).toEqual([])
+    })
+
+    it('converts a single ParseError to DiagnosticItem', () => {
+      const errors: ParseError[] = [
+        { message: 'Unexpected token on line 5.', severity: 'error', line: 5, column: 3 },
+      ]
+      const diagnostics = fromParseErrors(errors)
+      expect(diagnostics).toHaveLength(1)
+      expect(diagnostics[0].message).toBe('Unexpected token on line 5.')
+      expect(diagnostics[0].severity).toBe('error')
+      expect(diagnostics[0].line).toBe(5)
+      expect(diagnostics[0].startColumn).toBe(3)
+      expect(diagnostics[0].source).toBe('parser')
+    })
+
+    it('converts multiple ParseErrors to DiagnosticItems', () => {
+      const errors: ParseError[] = [
+        { message: 'Error on line 2.', severity: 'error', line: 2, column: 1 },
+        { message: 'Warning on line 7.', severity: 'warning', line: 7, column: 5 },
+        { message: 'Info on line 10.', severity: 'info', line: 10, column: 1 },
+      ]
+      const diagnostics = fromParseErrors(errors)
+      expect(diagnostics).toHaveLength(3)
+      expect(diagnostics[0].severity).toBe('error')
+      expect(diagnostics[1].severity).toBe('warning')
+      expect(diagnostics[2].severity).toBe('info')
+      expect(diagnostics[1].line).toBe(7)
+      expect(diagnostics[1].startColumn).toBe(5)
+    })
+
+    it('preserves all severity levels', () => {
+      const severities = ['error', 'warning', 'info'] as const
+      for (const severity of severities) {
+        const errors: ParseError[] = [{ message: 'msg', severity, line: 1, column: 1 }]
+        const diagnostics = fromParseErrors(errors)
+        expect(diagnostics[0].severity).toBe(severity)
+      }
     })
   })
 })

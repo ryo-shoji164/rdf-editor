@@ -2,10 +2,59 @@ import * as N3 from 'n3'
 import type { RdfFormat } from '../../types/rdf'
 import type * as JsonLdModule from 'jsonld'
 
+/** Severity level for a parse error. */
+export type ParseErrorSeverity = 'error' | 'warning' | 'info'
+
+/** Structured representation of a single parse error with location information. */
+export interface ParseError {
+  /** Human-readable error message. */
+  message: string
+  /** Severity level. */
+  severity: ParseErrorSeverity
+  /** 1-based line number where the error occurred. */
+  line: number
+  /** 1-based column number where the error occurred. Defaults to 1. */
+  column: number
+}
+
 export interface ParseResult {
   store: N3.Store
   prefixes: Record<string, string>
+  /** @deprecated Use `errors` for structured error information. */
   error?: string
+  /** Structured list of parse errors with location information. */
+  errors?: ParseError[]
+}
+
+/** N3 error context shape attached to N3 parser errors. */
+interface N3ErrorContext {
+  line?: number
+  token?: unknown
+  previousToken?: unknown
+}
+
+/**
+ * Extract a structured ParseError from an N3 parser error.
+ * N3 errors expose `error.context.line` for the line number.
+ */
+function toParseError(error: Error): ParseError {
+  const ctx = (error as Error & { context?: N3ErrorContext }).context
+  const line = ctx?.line ?? extractLineFromMessage(error.message)
+  return {
+    message: error.message,
+    severity: 'error',
+    line,
+    column: 1,
+  }
+}
+
+/**
+ * Fallback: extract a line number from an error message string.
+ * Handles patterns like "on line 5" or "Line 5".
+ */
+function extractLineFromMessage(message: string): number {
+  const match = message.match(/line (\d+)/i)
+  return match ? parseInt(match[1], 10) : 1
 }
 
 /**
@@ -19,7 +68,8 @@ export function parseTurtle(text: string): Promise<ParseResult> {
 
     parser.parse(text, (error, quad, prefixMap) => {
       if (error) {
-        resolve({ store, prefixes, error: error.message })
+        const parseError = toParseError(error)
+        resolve({ store, prefixes, error: error.message, errors: [parseError] })
         return
       }
       if (quad) {
@@ -34,7 +84,7 @@ export function parseTurtle(text: string): Promise<ParseResult> {
             ])
           )
         }
-        resolve({ store, prefixes })
+        resolve({ store, prefixes, errors: [] })
       }
     })
   })
@@ -53,13 +103,14 @@ export function parseNTriples(
 
     parser.parse(text, (error, quad) => {
       if (error) {
-        resolve({ store, prefixes: {}, error: error.message })
+        const parseError = toParseError(error)
+        resolve({ store, prefixes: {}, error: error.message, errors: [parseError] })
         return
       }
       if (quad) {
         store.add(quad)
       } else {
-        resolve({ store, prefixes: {} })
+        resolve({ store, prefixes: {}, errors: [] })
       }
     })
   })
@@ -79,7 +130,13 @@ export async function parseJsonLd(text: string): Promise<ParseResult> {
     })) as string
     return parseNTriples(nquads, 'N-Quads')
   } catch (err) {
-    return { store: new N3.Store(), prefixes: {}, error: String(err) }
+    const message = String(err)
+    return {
+      store: new N3.Store(),
+      prefixes: {},
+      error: message,
+      errors: [{ message, severity: 'error', line: 1, column: 1 }],
+    }
   }
 }
 

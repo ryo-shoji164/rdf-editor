@@ -11,7 +11,7 @@ import {
   disposeCompletionProvider,
 } from '../../lib/editor/completionProvider'
 import {
-  fromParseError,
+  fromParseErrors,
   setDiagnostics,
   applyDiagnostics,
   clearDiagnostics,
@@ -21,6 +21,7 @@ export default function TurtleEditor() {
   const turtleText = useRdfStore((s) => s.turtleText)
   const setTurtleText = useRdfStore((s) => s.setTurtleText)
   const parseError = useRdfStore((s) => s.parseError)
+  const parseErrors = useRdfStore((s) => s.parseErrors)
   const isParsing = useRdfStore((s) => s.isParsing)
   const editorRef = useRef<MonacoEditor.editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
@@ -34,7 +35,7 @@ export default function TurtleEditor() {
     const model = editor.getModel()
     if (!model) return
 
-    const diagnostics = fromParseError(parseError)
+    const diagnostics = fromParseErrors(parseErrors)
     setDiagnostics(diagnostics)
 
     if (diagnostics.length > 0) {
@@ -42,7 +43,7 @@ export default function TurtleEditor() {
     } else {
       clearDiagnostics(monaco, model)
     }
-  }, [parseError])
+  }, [parseErrors])
 
   // Cleanup completion provider on unmount
   useEffect(() => {
