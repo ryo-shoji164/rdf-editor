@@ -47,9 +47,15 @@ export default function AddEdgeDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-surface border border-surface-raised rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+      <div
+        className="bg-surface border border-surface-raised rounded-lg shadow-xl w-full max-w-md overflow-hidden"
+        role="dialog"
+        aria-labelledby="add-edge-dialog-title"
+      >
         <div className="px-5 py-4 border-b border-surface-raised flex justify-between items-center bg-surface-raised/30">
-          <h2 className="text-lg font-medium text-text-primary">{t('dialogs.addEdge.title')}</h2>
+          <h2 id="add-edge-dialog-title" className="text-lg font-medium text-text-primary">
+            {t('dialogs.addEdge.title')}
+          </h2>
           <button onClick={handleCloseWrapper} className="text-text-muted hover:text-text-primary">
             ✕
           </button>

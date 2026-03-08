@@ -37,7 +37,7 @@ test.describe('Graph Interactions - Context Menu', () => {
         await labelInput.fill('A Test Node');
 
         // Submit
-        const addButton = page.getByRole('button', { name: 'Add Node', exact: true });
+        const addButton = page.getByRole('dialog').getByRole('button', { name: 'Add Node', exact: true });
         await addButton.click();
 
         // The dialog should close
@@ -66,7 +66,7 @@ test.describe('Graph Interactions - Context Menu', () => {
         const iriInput = page.getByPlaceholder(/http:\/\/example\.org\/MyNode/);
         await iriInput.fill('http://example.org/ToolbarNode');
 
-        const addButton = page.getByRole('button', { name: 'Add Node', exact: true });
+        const addButton = page.getByRole('dialog').getByRole('button', { name: 'Add Node', exact: true });
         await addButton.click();
 
         // Dialog should close and we added 1 type triple = 13 total
@@ -105,7 +105,7 @@ test.describe('Graph Interactions - Context Menu', () => {
         const objectInput = page.getByPlaceholder(/http:\/\/example\.org\/Person/);
         await objectInput.fill('http://example.org/PersonB');
 
-        const addButton = page.getByRole('button', { name: 'Add Edge', exact: true }).nth(1);
+        const addButton = page.getByRole('dialog').getByRole('button', { name: 'Add Edge', exact: true });
         await addButton.click();
 
         // Dialog should close and we added 1 edge triple = 13 total
