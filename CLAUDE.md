@@ -250,6 +250,7 @@ AI agents **must** follow these rules when writing code for this repository. Vio
 
 ---
 
+
 ## What NOT to do
 
 - Do not add `console.log` for debugging — use proper error handling or `console.warn`/`console.error`.

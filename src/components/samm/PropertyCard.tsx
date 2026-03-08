@@ -13,17 +13,24 @@ function localName(iri: string) {
 function charColor(type?: string): string {
   if (!type) return 'text-text-muted'
   switch (type) {
-    case 'Measurement': return 'text-accent-orange'
-    case 'Quantifiable': return 'text-accent-orange'
-    case 'Boolean': return 'text-accent-purple'
+    case 'Measurement':
+      return 'text-accent-orange'
+    case 'Quantifiable':
+      return 'text-accent-orange'
+    case 'Boolean':
+      return 'text-accent-purple'
     case 'Enumeration':
-    case 'State': return 'text-accent-yellow'
+    case 'State':
+      return 'text-accent-yellow'
     case 'Collection':
     case 'Set':
     case 'List':
-    case 'SortedSet': return 'text-accent-cyan'
-    case 'SingleEntity': return 'text-accent-green'
-    default: return 'text-accent-blue'
+    case 'SortedSet':
+      return 'text-accent-cyan'
+    case 'SingleEntity':
+      return 'text-accent-green'
+    default:
+      return 'text-accent-blue'
   }
 }
 
@@ -38,9 +45,7 @@ export default function PropertyCard({ property }: Props) {
   return (
     <div className="rounded border border-surface-raised bg-surface p-2.5 space-y-1">
       <div className="flex items-center justify-between">
-        <span className="text-accent-blue font-medium text-[11px]">
-          {localName(property.iri)}
-        </span>
+        <span className="text-accent-blue font-medium text-[11px]">{localName(property.iri)}</span>
         {property.optional && (
           <span className="text-[10px] text-text-muted px-1.5 py-0.5 rounded-full bg-surface-raised">
             optional
@@ -58,9 +63,7 @@ export default function PropertyCard({ property }: Props) {
           {char.dataType && (
             <span className="text-text-muted ml-1">· {localName(char.dataType)}</span>
           )}
-          {char.unit && (
-            <span className="text-text-muted ml-1">· {localName(char.unit)}</span>
-          )}
+          {char.unit && <span className="text-text-muted ml-1">· {localName(char.unit)}</span>}
         </div>
       )}
 

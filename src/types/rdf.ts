@@ -93,6 +93,10 @@ export interface CyNodeData {
   label: string
   nodeType: 'iri' | 'literal' | 'blank'
   fullIri?: string
+  /** Full IRIs of all rdf:type values for this node */
+  rdfTypes?: string[]
+  /** Local name of the primary rdf:type (e.g. "Class", "Person") for selector matching */
+  rdfType?: string
 }
 
 export interface CyEdgeData {

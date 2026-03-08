@@ -13,7 +13,6 @@ export function serializeTurtle(
   prefixes: Record<string, string> = {}
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const chunks: string[] = []
     const writer = new N3.Writer({
       format: 'Turtle',
       prefixes: { ...prefixes },
