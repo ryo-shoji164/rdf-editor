@@ -105,7 +105,7 @@ test.describe('Graph Interactions - Context Menu', () => {
         const objectInput = page.getByPlaceholder(/http:\/\/example\.org\/Person/);
         await objectInput.fill('http://example.org/PersonB');
 
-        const addButton = page.getByRole('button', { name: 'Add Edge', exact: true });
+        const addButton = page.getByRole('dialog').getByRole('button', { name: 'Add Edge', exact: true });
         await addButton.click();
 
         // Dialog should close and we added 1 edge triple = 13 total
