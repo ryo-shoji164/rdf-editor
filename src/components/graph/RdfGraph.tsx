@@ -6,6 +6,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
 import { addTriple } from '../../lib/rdf/storeWriter'
 import { storeToCytoscape, CY_STYLE } from './graphUtils'
+import { Plus, Link2 } from 'lucide-react'
 import GraphLegend from './GraphLegend'
 import GraphContextMenu from './GraphContextMenu'
 import type { ContextMenuTargetType } from './GraphContextMenu'
@@ -202,10 +203,14 @@ export default function RdfGraph() {
     }
   }
 
-  const handleAddEdge = async (predicate: string, object: string, isLiteral: boolean) => {
-    if (!menuNodeId) return
+  const handleAddEdge = async (
+    subject: string,
+    predicate: string,
+    object: string,
+    isLiteral: boolean
+  ) => {
     const added = addTriple(store, {
-      subject: menuNodeId,
+      subject,
       predicate,
       object,
       objectType: isLiteral ? 'literal' : 'iri',
@@ -221,6 +226,24 @@ export default function RdfGraph() {
     <div className="flex flex-col h-full relative">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-surface-raised text-xs">
+        <button
+          onClick={() => setIsAddNodeOpen(true)}
+          className="flex items-center gap-1 px-2 py-0.5 rounded bg-accent-blue text-white hover:bg-blue-600 transition-colors"
+        >
+          <Plus size={14} />
+          Add Node
+        </button>
+        <button
+          onClick={() => {
+            setMenuNodeId(selectedNode) // Use currently selected node as Subject default
+            setIsAddEdgeOpen(true)
+          }}
+          className="flex items-center gap-1 px-2 py-0.5 rounded bg-surface-raised text-text-primary border border-surface-raised hover:bg-surface transition-colors"
+        >
+          <Link2 size={14} />
+          Add Edge
+        </button>
+        <div className="w-px h-4 bg-surface-raised mx-1"></div>
         <button
           onClick={handleFitView}
           className="px-2 py-0.5 rounded bg-surface-raised hover:bg-surface text-text-primary border border-surface-raised"
