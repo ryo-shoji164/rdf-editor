@@ -9,6 +9,7 @@
  */
 import type { Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
+import { COMMON_PREFIXES } from './vocabularies'
 
 // ─── Vocabulary item type (matches DomainPlugin.VocabularyItem) ───
 
@@ -117,11 +118,9 @@ export function registerCompletionProvider(monaco: Monaco): void {
         endColumn: position.column,
       })
 
-      const inferredPosition = inferPosition(textBeforeCursor)
-
       // Extract the word being typed (after last space or start of line)
-      const wordMatch = textBeforeCursor.match(/([a-zA-Z_][\w-]*:?[\w-]*)$/)
-      const currentWord = wordMatch ? wordMatch[1].toLowerCase() : ''
+      const wordMatch = textBeforeCursor.match(/([@a-zA-Z_][\w-]*:?[\w-]*)$/)
+      const currentWord = wordMatch ? wordMatch[1] : ''
 
       const range = {
         startLineNumber: position.lineNumber,
@@ -130,17 +129,62 @@ export function registerCompletionProvider(monaco: Monaco): void {
         endColumn: position.column,
       }
 
-      const suggestions: MonacoEditor.languages.CompletionItem[] = vocabularyItems
+      const suggestions: MonacoEditor.languages.CompletionItem[] = []
+
+      // 1. Suggest `@prefix` keyword
+      if (currentWord.startsWith('@')) {
+        suggestions.push({
+          label: '@prefix',
+          kind: monaco.languages.CompletionItemKind.Keyword,
+          insertText: '@prefix ',
+          range,
+          sortText: '0',
+        })
+      }
+
+      // 2. Suggest well-known prefixes after `@prefix`
+      if (textBeforeCursor.trim().startsWith('@prefix')) {
+        COMMON_PREFIXES.forEach((p) => {
+          suggestions.push({
+            label: p.prefix + ':',
+            kind: monaco.languages.CompletionItemKind.Module,
+            detail: p.description,
+            documentation: p.uri,
+            insertText: `${p.prefix}: <${p.uri}> .`,
+            range,
+            sortText: '1',
+          })
+        })
+        return { suggestions }
+      }
+
+      // 3. Suggest prefixes before ':'
+      if (!currentWord.includes(':') && !currentWord.startsWith('@')) {
+        COMMON_PREFIXES.forEach((p) => {
+          suggestions.push({
+            label: p.prefix + ':',
+            kind: monaco.languages.CompletionItemKind.Module,
+            detail: p.description,
+            documentation: p.uri,
+            insertText: p.prefix + ':',
+            range,
+            sortText: '2',
+          })
+        })
+      }
+
+      const inferredPosition = inferPosition(textBeforeCursor)
+
+      // 4. Suggest vocabulary items
+      const vocabSuggestions = vocabularyItems
         .filter((item) => {
-          // Filter by position if specified
           if (item.position && item.position !== 'any' && inferredPosition !== 'any') {
             if (item.position !== inferredPosition) return false
           }
-          // Filter by typed prefix
           if (currentWord) {
             return (
-              item.prefixedName.toLowerCase().startsWith(currentWord) ||
-              item.label.toLowerCase().startsWith(currentWord)
+              item.prefixedName.toLowerCase().startsWith(currentWord.toLowerCase()) ||
+              item.label.toLowerCase().startsWith(currentWord.toLowerCase())
             )
           }
           return true
@@ -152,8 +196,10 @@ export function registerCompletionProvider(monaco: Monaco): void {
           documentation: item.iri,
           insertText: item.prefixedName,
           range,
-          sortText: item.kind === 'class' ? '0' : item.kind === 'property' ? '1' : '2',
+          sortText: item.kind === 'class' ? '3' : item.kind === 'property' ? '4' : '5',
         }))
+
+      suggestions.push(...vocabSuggestions)
 
       return { suggestions }
     },
