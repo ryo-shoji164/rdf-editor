@@ -1,0 +1,38 @@
+{
+    "layout": {
+        "title": "RDF Editor",
+        "editor": "Editor",
+        "graph": "Graph",
+        "table": "Table",
+        "split": "Split",
+        "open": "Open",
+        "export": "Export",
+        "exportTooltip": "Export as {{format}}",
+        "clearAll": "Clear all"
+    },
+    "dialogs": {
+        "addNode": {
+            "title": "Add New Node",
+            "nodeIri": "Node IRI",
+            "label": "Label (rdfs:label)",
+            "optional": "Optional",
+            "cancel": "Cancel",
+            "add": "Add Node",
+            "iriPlaceholder": "http://example.org/MyNode or ex:MyNode",
+            "labelPlaceholder": "Human readable display name"
+        },
+        "addEdge": {
+            "title": "Add Edge (Triple)",
+            "fromNode": "From Node:",
+            "predicate": "Predicate (URI)",
+            "literalObj": "Literal Object",
+            "objValue": "Object Value (IRI or Text)",
+            "cancel": "Cancel",
+            "add": "Add Edge"
+        }
+    },
+    "contextMenu": {
+        "addNode": "Add Node...",
+        "addEdge": "Add Edge from Here..."
+    }
+}

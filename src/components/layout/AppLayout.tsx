@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { Code2, Network, Table2, Columns2, FileDown, FileUp, Trash2, Layers } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore, type ActiveView } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
@@ -10,14 +11,16 @@ import SammPanel from '../samm/SammPanel'
 import StatusBar from './StatusBar'
 import TemplateMenu from './TemplateMenu'
 
-const VIEW_BUTTONS: { id: ActiveView; icon: React.ReactNode; label: string }[] = [
-  { id: 'editor', icon: <Code2 size={15} />, label: 'Editor' },
-  { id: 'graph', icon: <Network size={15} />, label: 'Graph' },
-  { id: 'table', icon: <Table2 size={15} />, label: 'Table' },
-  { id: 'split', icon: <Columns2 size={15} />, label: 'Split' },
+const VIEW_BUTTONS: { id: ActiveView; icon: React.ReactNode }[] = [
+  { id: 'editor', icon: <Code2 size={15} /> },
+  { id: 'graph', icon: <Network size={15} /> },
+  { id: 'table', icon: <Table2 size={15} /> },
+  { id: 'split', icon: <Columns2 size={15} /> },
 ]
 
 export default function AppLayout() {
+  const { t, i18n } = useTranslation()
+
   const activeView = useUiStore((s) => s.activeView)
   const setActiveView = useUiStore((s) => s.setActiveView)
 
@@ -89,7 +92,7 @@ export default function AppLayout() {
         {/* App name */}
         <div className="flex items-center gap-1.5 mr-3">
           <Layers size={16} className="text-accent-purple" />
-          <span className="text-sm font-medium text-text-primary">RDF Editor</span>
+          <span className="text-sm font-medium text-text-primary">{t('layout.title')}</span>
         </div>
 
         {/* Mode toggle — dynamically generated from registered domains */}
@@ -118,7 +121,7 @@ export default function AppLayout() {
               <button
                 key={btn.id}
                 onClick={() => setActiveView(btn.id)}
-                title={btn.label}
+                title={t(`layout.${btn.id}`)}
                 className={`px-2.5 py-1 flex items-center gap-1 text-xs transition-colors ${
                   activeView === btn.id
                     ? 'bg-surface-raised text-text-primary'
@@ -126,7 +129,7 @@ export default function AppLayout() {
                 }`}
               >
                 {btn.icon}
-                <span className="hidden sm:inline">{btn.label}</span>
+                <span className="hidden sm:inline">{t(`layout.${btn.id}`)}</span>
               </button>
             ))}
           </div>
@@ -135,6 +138,15 @@ export default function AppLayout() {
         <div className="ml-auto flex items-center gap-1">
           {/* Examples — dynamically generated from registered domains */}
           <TemplateMenu />
+
+          {/* Language Switcher */}
+          <button
+            onClick={() => i18n.changeLanguage(i18n.language.startsWith('ja') ? 'en' : 'ja')}
+            title="Toggle Language"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-text-muted hover:text-text-primary hover:bg-surface-raised rounded mr-1"
+          >
+            {i18n.language.startsWith('ja') ? 'EN' : 'JA'}
+          </button>
 
           {/* Import */}
           <input
@@ -146,18 +158,18 @@ export default function AppLayout() {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            title="Open file (.ttl, .nt, .jsonld)"
+            title={t('layout.open')}
             className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-muted hover:text-text-primary hover:bg-surface-raised rounded"
           >
             <FileUp size={13} />
-            <span className="hidden sm:inline">Open</span>
+            <span className="hidden sm:inline">{t('layout.open')}</span>
           </button>
 
           {/* Export */}
           <div className="relative group">
             <button className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-muted hover:text-text-primary hover:bg-surface-raised rounded">
               <FileDown size={13} />
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">{t('layout.export')}</span>
             </button>
             <div className="hidden group-hover:flex flex-col absolute right-0 top-full mt-1 bg-surface-raised border border-surface-raised rounded shadow-lg z-50 min-w-36">
               <button
@@ -184,7 +196,7 @@ export default function AppLayout() {
           {/* Clear */}
           <button
             onClick={clearAll}
-            title="Clear all"
+            title={t('layout.clearAll')}
             className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-muted hover:text-accent-red hover:bg-surface-raised rounded"
           >
             <Trash2 size={13} />
