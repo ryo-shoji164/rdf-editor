@@ -12,11 +12,14 @@ on:
 
 jobs:
   claude-review:
-    # Only run for non-maintainer contributors
+    # Only run for non-maintainer human contributors (skip bots like Dependabot)
     if: |
-      github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
-      github.event.pull_request.author_association == 'CONTRIBUTOR' ||
-      github.event.pull_request.author_association == 'NONE'
+      github.event.pull_request.user.type != 'Bot' &&
+      (
+        github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
+        github.event.pull_request.author_association == 'CONTRIBUTOR' ||
+        github.event.pull_request.author_association == 'NONE'
+      )
 
     runs-on: ubuntu-latest
     permissions:
