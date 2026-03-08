@@ -2,6 +2,9 @@ import { useEffect, useRef } from 'react'
 import Editor, { type Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
 import { useRdfStore } from '../../store/rdfStore'
+import { useDomainStore } from '../../store/domainStore'
+import { getPlugin } from '../../lib/domains/registry'
+import { setVocabulary } from '../../lib/editor/completionProvider'
 import { registerTurtleLanguage } from '../../lib/editor/languageSetup'
 import {
   registerCompletionProvider,
@@ -58,6 +61,13 @@ export default function TurtleEditor() {
 
     // Register completion provider
     registerCompletionProvider(monaco)
+
+    // Initialize vocabulary
+    const activeDomainId = useDomainStore.getState().activeDomainId
+    const plugin = getPlugin(activeDomainId)
+    if (plugin && plugin.vocabularyItems) {
+      setVocabulary(plugin.vocabularyItems)
+    }
   }
 
   return (

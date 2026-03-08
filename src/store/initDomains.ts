@@ -4,37 +4,28 @@
  */
 import { useDomainStore } from './domainStore'
 import { useRdfStore } from './rdfStore'
-import { FOAF_EXAMPLE, SAMM_EXAMPLE } from '../lib/samm/templates'
-import type { DomainInfo } from './domainStore'
-
-const FREE_DOMAIN: DomainInfo = {
-  id: 'free',
-  label: 'Free',
-  templates: [
-    {
-      id: 'foaf',
-      label: 'FOAF Graph',
-      turtleContent: FOAF_EXAMPLE,
-    },
-  ],
-}
-
-const SAMM_DOMAIN: DomainInfo = {
-  id: 'samm',
-  label: 'SAMM',
-  templates: [
-    {
-      id: 'samm-basic',
-      label: 'SAMM Aspect',
-      turtleContent: SAMM_EXAMPLE,
-    },
-  ],
-}
+import { FOAF_EXAMPLE } from '../lib/samm/templates'
+import { initializePlugins, getAllPlugins } from '../lib/domains/registry'
 
 export function initializeDomains() {
   const domainStore = useDomainStore.getState()
-  domainStore.registerDomain(FREE_DOMAIN)
-  domainStore.registerDomain(SAMM_DOMAIN)
+
+  // First, initialize the plugin registry
+  initializePlugins()
+
+  // Then map each plugin to a DomainInfo and register it in the domain store
+  const plugins = getAllPlugins()
+  for (const plugin of plugins) {
+    domainStore.registerDomain({
+      id: plugin.id,
+      label: plugin.label,
+      templates: plugin.templates.map((t) => ({
+        id: t.id,
+        label: t.label,
+        turtleContent: t.turtleContent,
+      })),
+    })
+  }
 
   // Load default content and trigger initial parse
   const rdfStore = useRdfStore.getState()

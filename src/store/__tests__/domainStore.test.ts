@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import * as N3 from 'n3'
 import { useDomainStore } from '../domainStore'
 import { useRdfStore } from '../rdfStore'
+import { getVocabulary } from '../../lib/editor/completionProvider'
+import { resetRegistry, registerPlugin } from '../../lib/domains/registry'
 import type { DomainInfo } from '../domainStore'
 
 const TEST_DOMAIN: DomainInfo = {
@@ -22,6 +24,17 @@ const TEST_DOMAIN: DomainInfo = {
 }
 
 beforeEach(() => {
+  resetRegistry()
+  registerPlugin({
+    id: 'samm',
+    label: 'SAMM',
+    namespaces: {},
+    templates: [],
+    vocabularyItems: [
+      { iri: 'urn:samm:Test', prefixedName: 'samm:Test', label: 'Test', kind: 'class' },
+    ],
+  })
+
   useDomainStore.setState({
     activeDomainId: 'free',
     registeredDomains: new Map(),
@@ -66,9 +79,19 @@ describe('domainStore', () => {
   })
 
   describe('setActiveDomain', () => {
-    it('changes the active domain', () => {
+    it('changes the active domain and updates vocabulary', () => {
       useDomainStore.getState().setActiveDomain('samm')
       expect(useDomainStore.getState().activeDomainId).toBe('samm')
+
+      const vocab = getVocabulary()
+      expect(vocab).toHaveLength(1)
+      expect(vocab[0].prefixedName).toBe('samm:Test')
+    })
+
+    it('clears vocabulary if plugin not found', () => {
+      useDomainStore.getState().setActiveDomain('unknown')
+      const vocab = getVocabulary()
+      expect(vocab).toHaveLength(0)
     })
   })
 
