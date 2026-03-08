@@ -34,5 +34,22 @@
     "contextMenu": {
         "addNode": "ノードを追加...",
         "addEdge": "ここからエッジを伸ばす..."
+    },
+    "validation": {
+        "title": "SHACL バリデーション",
+        "toggleLabel": "検証",
+        "toggleTooltip": "SHACLバリデーションパネルを表示/非表示",
+        "validate": "実行",
+        "validating": "検証中…",
+        "conforms": "適合",
+        "violations": "件の違反",
+        "shapesLabel": "SHACLシェイプ (Turtle形式)",
+        "shapesPlaceholder": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n\n# SHACLシェイプをここに貼り付けてください",
+        "resultsLabel": "違反一覧",
+        "noShapes": "左にSHACLシェイプを貼り付けて「実行」をクリックしてください。",
+        "noViolations": "違反は見つかりませんでした。",
+        "focusNode": "フォーカスノード",
+        "path": "パス",
+        "line": "行"
     }
 }

@@ -5,6 +5,7 @@ import type { ParseError } from '../lib/rdf/parser'
 import { serializeTurtle, serializeNTriples, downloadText } from '../lib/rdf/serializer'
 import type { RdfFormat } from '../types/rdf'
 import type * as JsonLdModule from 'jsonld'
+import { useValidationStore } from './validationStore'
 
 export interface RdfState {
   // RDF core data
@@ -49,6 +50,10 @@ async function applyParseResult(
     parseErrors: result.errors ?? [],
     isParsing: false,
   })
+  // Trigger SHACL validation after a successful parse
+  if (!result.error) {
+    useValidationStore.getState().runValidation(result.store, text)
+  }
 }
 
 export const useRdfStore = create<RdfState>((set, get) => ({
