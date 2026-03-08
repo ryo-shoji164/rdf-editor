@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { useRdfStore } from './rdfStore'
+import { useValidationStore } from './validationStore'
 import { setVocabulary } from '../lib/editor/completionProvider'
 import { getPlugin } from '../lib/domains/registry'
 
@@ -49,6 +50,7 @@ export const useDomainStore = create<DomainState>((set, get) => ({
     } else {
       setVocabulary([])
     }
+    useValidationStore.getState().setShapesText(plugin?.shaclShapes ?? '')
     set({ activeDomainId: id })
   },
 
@@ -70,6 +72,7 @@ export const useDomainStore = create<DomainState>((set, get) => ({
     } else {
       setVocabulary([])
     }
+    useValidationStore.getState().setShapesText(plugin?.shaclShapes ?? '')
 
     set({ activeDomainId: domainId })
   },

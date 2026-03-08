@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import {
   Code2,
   Network,
@@ -51,17 +51,9 @@ export default function AppLayout() {
 
   const [showValidation, setShowValidation] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [runTour, setRunTour] = useState(false)
-
   const ONBOARDING_KEY = 'rdf-editor-onboarding-complete'
 
-  // Start tutorial automatically for new users
-  useEffect(() => {
-    const isComplete = localStorage.getItem(ONBOARDING_KEY)
-    if (!isComplete) {
-      setRunTour(true)
-    }
-  }, [])
+  const [runTour, setRunTour] = useState(() => !localStorage.getItem(ONBOARDING_KEY))
 
   // Convert Map to sorted array for rendering
   const domainList = Array.from(registeredDomains.values())
@@ -112,7 +104,10 @@ export default function AppLayout() {
     <div className="flex flex-col h-screen overflow-hidden bg-surface">
       <OnboardingTour run={runTour} onFinish={() => setRunTour(false)} />
       {/* Toolbar */}
-      <header id="joyride-toolbar" className="flex items-center gap-1 px-3 py-1.5 border-b border-surface-raised bg-surface-alt shrink-0">
+      <header
+        id="joyride-toolbar"
+        className="flex items-center gap-1 px-3 py-1.5 border-b border-surface-raised bg-surface-alt shrink-0"
+      >
         {/* App name */}
         <div className="flex items-center gap-1.5 mr-3">
           <Layers size={16} className="text-accent-purple" />
@@ -120,17 +115,21 @@ export default function AppLayout() {
         </div>
 
         {/* Mode toggle — dynamically generated from registered domains */}
-        <div id="joyride-mode-toggle" className="flex rounded overflow-hidden border border-surface-raised mr-2">
+        <div
+          id="joyride-mode-toggle"
+          className="flex rounded overflow-hidden border border-surface-raised mr-2"
+        >
           {domainList.map((domain) => (
             <button
               key={domain.id}
               onClick={() => setActiveDomain(domain.id)}
-              className={`px-3 py-1 text-xs capitalize transition-colors ${activeDomainId === domain.id
-                ? domain.id === 'samm'
-                  ? 'bg-accent-purple text-surface font-medium'
-                  : 'bg-accent-blue text-surface font-medium'
-                : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
-                }`}
+              className={`px-3 py-1 text-xs capitalize transition-colors ${
+                activeDomainId === domain.id
+                  ? domain.id === 'samm'
+                    ? 'bg-accent-purple text-surface font-medium'
+                    : 'bg-accent-blue text-surface font-medium'
+                  : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
+              }`}
             >
               {domain.label}
             </button>
@@ -139,16 +138,20 @@ export default function AppLayout() {
 
         {/* View toggle (hidden in SAMM mode) */}
         {activeDomainId !== 'samm' && (
-          <div id="joyride-view-toggle" className="flex rounded overflow-hidden border border-surface-raised mr-2">
+          <div
+            id="joyride-view-toggle"
+            className="flex rounded overflow-hidden border border-surface-raised mr-2"
+          >
             {VIEW_BUTTONS.map((btn) => (
               <button
                 key={btn.id}
                 onClick={() => setActiveView(btn.id)}
                 title={t(`layout.${btn.id}`)}
-                className={`px-2.5 py-1 flex items-center gap-1 text-xs transition-colors ${activeView === btn.id
-                  ? 'bg-surface-raised text-text-primary'
-                  : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
-                  }`}
+                className={`px-2.5 py-1 flex items-center gap-1 text-xs transition-colors ${
+                  activeView === btn.id
+                    ? 'bg-surface-raised text-text-primary'
+                    : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
+                }`}
               >
                 {btn.icon}
                 <span className="hidden sm:inline">{t(`layout.${btn.id}`)}</span>
@@ -176,14 +179,15 @@ export default function AppLayout() {
           <button
             onClick={() => setShowValidation((v) => !v)}
             title={t('validation.toggleTooltip')}
-            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded transition-colors ${showValidation
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded transition-colors ${
+              showValidation
                 ? 'bg-accent-purple text-surface font-medium'
                 : validationResults.length > 0
                   ? 'text-accent-red hover:bg-surface-raised'
                   : isValidating
                     ? 'text-accent-yellow hover:bg-surface-raised'
                     : 'text-text-muted hover:text-text-primary hover:bg-surface-raised'
-              }`}
+            }`}
           >
             <Shield size={13} />
             <span className="hidden sm:inline">{t('validation.toggleLabel')}</span>
