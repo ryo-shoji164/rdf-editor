@@ -39,11 +39,14 @@ test.describe('Onboarding Tutorial', () => {
         // Tutorial should start again
         await expect(page.getByText('Welcome to RDF Editor!')).toBeVisible()
 
-        // Complete tutorial
-        while (await page.getByRole('button', { name: 'Next' }).isVisible()) {
-            await page.getByRole('button', { name: 'Next' }).click()
+        // Complete tutorial - wait for Next or Done after each step transition
+        const nextButton = page.getByRole('button', { name: 'Next' })
+        const doneButton = page.getByRole('button', { name: 'Done' })
+        while (await nextButton.isVisible()) {
+            await nextButton.click()
+            await expect(nextButton.or(doneButton)).toBeVisible()
         }
-        await page.getByRole('button', { name: 'Done' }).click()
+        await doneButton.click()
 
         // Tutorial should be gone
         await expect(page.getByText('Welcome to RDF Editor!')).not.toBeVisible()
