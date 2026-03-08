@@ -122,8 +122,8 @@ export const useRdfStore = create<RdfState>((set, get) => ({
           format: 'application/n-quads',
         })
         downloadText(JSON.stringify(doc, null, 2), 'model.jsonld', 'application/ld+json')
-      } catch (err) {
-        console.error('JSON-LD export failed', err)
+      } catch {
+        console.error('JSON-LD export failed')
       }
     }
   },
