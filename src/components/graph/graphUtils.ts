@@ -9,12 +9,43 @@ export interface CyElements {
 
 const MAX_NODES = 300 // Performance guard
 
+const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+
+/**
+ * Extract the local name from a full IRI (after last '#' or '/').
+ */
+function localName(iri: string): string {
+  const sep = Math.max(iri.lastIndexOf('#'), iri.lastIndexOf('/'))
+  return sep >= 0 ? iri.slice(sep + 1) : iri
+}
+
+/**
+ * Build a map of subject IRI → rdf:type IRIs from the store.
+ */
+function buildTypeMap(store: N3.Store): Map<string, string[]> {
+  const typeMap = new Map<string, string[]>()
+  for (const quad of store.match(
+    null,
+    { termType: 'NamedNode', value: RDF_TYPE } as N3.NamedNode,
+    null
+  )) {
+    if (quad.object.termType === 'NamedNode') {
+      const types = typeMap.get(quad.subject.value) ?? []
+      types.push(quad.object.value)
+      typeMap.set(quad.subject.value, types)
+    }
+  }
+  return typeMap
+}
+
 /**
  * Convert N3.Store triples to Cytoscape elements.
  * Blank nodes and literals are represented as nodes.
  * Predicates become directed edges.
+ * rdf:type information is attached to each IRI node for type-based styling.
  */
 export function storeToCytoscape(store: N3.Store, prefixes: Record<string, string>): CyElements {
+  const typeMap = buildTypeMap(store)
   const nodeMap = new Map<string, CyNodeData>()
   const edges: { data: CyEdgeData }[] = []
   let edgeIdx = 0
@@ -26,7 +57,18 @@ export function storeToCytoscape(store: N3.Store, prefixes: Record<string, strin
     fullIri?: string
   ) => {
     if (!nodeMap.has(id)) {
-      nodeMap.set(id, { id, label, nodeType, fullIri })
+      const data: CyNodeData = { id, label, nodeType, fullIri }
+
+      // Attach rdf:type info for IRI nodes
+      if (nodeType === 'iri' && fullIri) {
+        const types = typeMap.get(fullIri)
+        if (types && types.length > 0) {
+          data.rdfTypes = types
+          data.rdfType = localName(types[0])
+        }
+      }
+
+      nodeMap.set(id, data)
     }
   }
 
@@ -79,8 +121,31 @@ export function storeToCytoscape(store: N3.Store, prefixes: Record<string, strin
   }
 }
 
+// ─── Type-based color definitions ──────────────────────────────────
+
+/** Exported for use in GraphLegend */
+export const TYPE_COLORS: Record<string, { bg: string; border: string; label: string }> = {
+  // OWL / RDFS meta types
+  Class: { bg: '#45275e', border: '#cba6f7', label: 'owl:Class / rdfs:Class' },
+  Ontology: { bg: '#3b1f3e', border: '#f38ba8', label: 'owl:Ontology' },
+  ObjectProperty: { bg: '#1a3a2a', border: '#a6e3a1', label: 'owl:ObjectProperty' },
+  DatatypeProperty: { bg: '#1a3835', border: '#94e2d5', label: 'owl:DatatypeProperty' },
+  // People / Org
+  Person: { bg: '#1a2e4a', border: '#89b4fa', label: 'foaf:Person / schema:Person' },
+  Organization: { bg: '#3a2a1a', border: '#fab387', label: 'foaf:Organization' },
+  // SKOS
+  Concept: { bg: '#3a3520', border: '#f9e2af', label: 'skos:Concept' },
+  ConceptScheme: { bg: '#3a3520', border: '#f9e2af', label: 'skos:ConceptScheme' },
+  // SAMM
+  Aspect: { bg: '#2e1a4e', border: '#b47ded', label: 'samm:Aspect' },
+  Property: { bg: '#1a2e4a', border: '#89b4fa', label: 'samm:Property / rdf:Property' },
+  Characteristic: { bg: '#1a3a2a', border: '#a6e3a1', label: 'samm:Characteristic' },
+  Entity: { bg: '#3a2a1a', border: '#fab387', label: 'samm:Entity' },
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const CY_STYLE: any[] = [
+  // ─── Base node style ──────────────────────────────────────────
   {
     selector: 'node',
     style: {
@@ -129,6 +194,18 @@ export const CY_STYLE: any[] = [
       color: '#f9e2af',
     },
   },
+
+  // ─── rdf:type-based node styling ──────────────────────────────
+  ...Object.entries(TYPE_COLORS).map(([type, colors]) => ({
+    selector: `node[rdfType="${type}"]`,
+    style: {
+      'background-color': colors.bg,
+      'border-color': colors.border,
+      'border-width': 2.5,
+    },
+  })),
+
+  // ─── Selection ────────────────────────────────────────────────
   {
     selector: 'node:selected',
     style: {
@@ -137,6 +214,8 @@ export const CY_STYLE: any[] = [
       'background-color': '#313244',
     },
   },
+
+  // ─── Edge styles ──────────────────────────────────────────────
   {
     selector: 'edge',
     style: {

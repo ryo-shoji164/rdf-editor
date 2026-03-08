@@ -268,31 +268,31 @@ export const sammPlugin: DomainPlugin = {
 
   graphStyles: [
     {
-      selector: 'node[label = "samm:Aspect"]',
+      selector: 'node[rdfType = "Aspect"]',
       style: {
-        'background-color': '#7c3aed',
-        'border-color': '#6d28d9',
+        'background-color': '#2e1a4e',
+        'border-color': '#b47ded',
       },
     },
     {
-      selector: 'node[label = "samm:Property"]',
+      selector: 'node[rdfType = "Property"]',
       style: {
-        'background-color': '#2563eb',
-        'border-color': '#1d4ed8',
+        'background-color': '#1a2e4a',
+        'border-color': '#89b4fa',
       },
     },
     {
-      selector: 'node[label = "samm:Characteristic"]',
+      selector: 'node[rdfType = "Characteristic"]',
       style: {
-        'background-color': '#059669',
-        'border-color': '#047857',
+        'background-color': '#1a3a2a',
+        'border-color': '#a6e3a1',
       },
     },
     {
-      selector: 'node[label = "samm:Entity"]',
+      selector: 'node[rdfType = "Entity"]',
       style: {
-        'background-color': '#d97706',
-        'border-color': '#b45309',
+        'background-color': '#3a2a1a',
+        'border-color': '#fab387',
       },
     },
   ],
