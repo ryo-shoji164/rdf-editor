@@ -34,5 +34,42 @@
     "contextMenu": {
         "addNode": "ノードを追加...",
         "addEdge": "ここからエッジを伸ばす..."
+    },
+    "onboarding": {
+        "buttons": {
+            "back": "戻る",
+            "close": "閉じる",
+            "last": "完了",
+            "next": "次へ",
+            "skip": "スキップ"
+        },
+        "steps": {
+            "welcome": "RDF Editor へようこそ！主要な機能を簡単にご紹介します。",
+            "toolbar": "ツールバーでは、データの保存、読み込み、消去などのグローバルな操作が行えます。",
+            "modeToggle": "BIMやSchema.orgなどのRDFドメインを切り替えて、専用のテンプレートやスタイリングを利用できます。",
+            "viewToggle": "エディタ、グラフ、テーブルの各ビューを切り替えたり、分割表示で同時に確認したりできます。",
+            "templates": "選択中のドメインに応じた定義済みテンプレートを素早く挿入できます。",
+            "editor": "Turtle構文でRDFデータを直接編集できます。自動補完や構文ハイライトが利用可能です。",
+            "graph": "RDFをインタラクティブなグラフとして可視化します。ツールバーから直接要素を追加することもできます。",
+            "table": "構造化されたテーブル形式でデータを閲覧・編集できます。セルをダブルクリックして値を直接変更可能です。",
+            "help": "使い方がわからなくなったら、このヘルプボタンをクリックしていつでもこのツアーを再開できます。"
+        }
+    },
+    "validation": {
+        "title": "SHACL バリデーション",
+        "toggleLabel": "検証",
+        "toggleTooltip": "SHACLバリデーションパネルを表示/非表示",
+        "validate": "実行",
+        "validating": "検証中…",
+        "conforms": "適合",
+        "violations": "件の違反",
+        "shapesLabel": "SHACLシェイプ (Turtle形式)",
+        "shapesPlaceholder": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n\n# SHACLシェイプをここに貼り付けてください",
+        "resultsLabel": "違反一覧",
+        "noShapes": "左にSHACLシェイプを貼り付けて「実行」をクリックしてください。",
+        "noViolations": "違反は見つかりませんでした。",
+        "focusNode": "フォーカスノード",
+        "path": "パス",
+        "line": "行"
     }
 }

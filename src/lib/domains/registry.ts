@@ -7,6 +7,9 @@
 import type { DomainPlugin } from '../../types/domain'
 import { freePlugin } from './freePlugin'
 import { sammPlugin } from '../samm/sammPlugin'
+import { schemaorgPlugin } from './schemaorg/schemaorgPlugin'
+import { bimPlugin } from './bim/plugin'
+import { smartcityPlugin } from './smartcity/plugin'
 
 // ─── Internal state ───────────────────────────────────────────────
 
@@ -64,6 +67,9 @@ export function initializePlugins(): void {
 
   registerPlugin(freePlugin)
   registerPlugin(sammPlugin)
+  registerPlugin(schemaorgPlugin)
+  registerPlugin(bimPlugin)
+  registerPlugin(smartcityPlugin)
   activeDomainId = 'free'
 }
 

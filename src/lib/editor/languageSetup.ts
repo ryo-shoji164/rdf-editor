@@ -5,10 +5,16 @@
  * Registers the 'turtle' language and its Monarch tokenizer + theme.
  */
 import type { Monaco } from '@monaco-editor/react'
+import type * as MonacoEditor from 'monaco-editor'
 
 /** Register Turtle language if not already registered. */
 export function registerTurtleLanguage(monaco: Monaco): void {
-  if (monaco.languages.getLanguages().some((l: any) => l.id === 'turtle')) return
+  if (
+    monaco.languages
+      .getLanguages()
+      .some((l: MonacoEditor.languages.ILanguageExtensionPoint) => l.id === 'turtle')
+  )
+    return
 
   monaco.languages.register({ id: 'turtle', extensions: ['.ttl', '.turtle'] })
 

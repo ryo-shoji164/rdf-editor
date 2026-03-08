@@ -37,7 +37,7 @@ test.describe('Graph Interactions - Context Menu', () => {
         await labelInput.fill('A Test Node');
 
         // Submit
-        const addButton = page.getByRole('button', { name: 'Add Node', exact: true });
+        const addButton = page.getByRole('dialog').getByRole('button', { name: 'Add Node', exact: true });
         await addButton.click();
 
         // The dialog should close
@@ -47,5 +47,69 @@ test.describe('Graph Interactions - Context Menu', () => {
         // Instead, verify that the triple count increased
         // The default FOAF example has 12 triples. We added a type and a label, so it should be 14.
         await expect(page.locator('text=14 triples')).toBeVisible();
+    });
+
+    test('adds a new node via the toolbar Add Node button', async ({ page }) => {
+        // Wait for cytoscape container
+        await expect(page.getByTestId('cytoscape-container')).toBeVisible();
+
+        // Click the Add Node button in the toolbar
+        const toolbarAddNodeBtn = page.getByRole('button', { name: 'Add Node' });
+        await expect(toolbarAddNodeBtn).toBeVisible();
+        await toolbarAddNodeBtn.click();
+
+        // The Add Node dialog should appear
+        const dialogHeading = page.getByRole('heading', { name: 'Add New Node' });
+        await expect(dialogHeading).toBeVisible();
+
+        // Fill out the dialog for toolbar addition
+        const iriInput = page.getByPlaceholder(/http:\/\/example\.org\/MyNode/);
+        await iriInput.fill('http://example.org/ToolbarNode');
+
+        const addButton = page.getByRole('dialog').getByRole('button', { name: 'Add Node', exact: true });
+        await addButton.click();
+
+        // Dialog should close and we added 1 type triple = 13 total
+        await expect(dialogHeading).not.toBeVisible();
+        await expect(page.locator('text=13 triples')).toBeVisible();
+    });
+
+    test('adds a new edge via the toolbar Add Edge button with manual subject', async ({ page }) => {
+        await expect(page.getByTestId('cytoscape-container')).toBeVisible();
+
+        // Ensure no node is selected by clicking the background
+        const canvas = page.getByTestId('cytoscape-container').locator('canvas').last();
+        await canvas.click({ force: true, position: { x: 15, y: 15 } });
+
+        // Click the Add Edge button in the toolbar
+        const toolbarAddEdgeBtn = page.getByRole('button', { name: 'Add Edge' });
+        await expect(toolbarAddEdgeBtn).toBeVisible();
+        await page.waitForTimeout(500); // Give cytoscape events time to process
+        await toolbarAddEdgeBtn.click();
+
+        // The Add Edge dialog should appear
+        const dialogHeading = page.getByRole('heading', { name: /Add Edge/i });
+        await expect(dialogHeading).toBeVisible();
+
+        // Fill out the dialog 
+        // 1. Manual Subject Input (because sourceNodeId was null)
+        const subjectInput = page.getByPlaceholder(/http:\/\/example\.org\/SubjectNode/);
+        await expect(subjectInput).toBeVisible();
+        await subjectInput.fill('http://example.org/PersonA');
+
+        // 2. Predicate Input
+        const predicateInput = page.getByPlaceholder(/http:\/\/example\.org\/knows/);
+        await predicateInput.fill('http://xmlns.com/foaf/0.1/knows');
+
+        // 3. Object Input
+        const objectInput = page.getByPlaceholder(/http:\/\/example\.org\/Person/);
+        await objectInput.fill('http://example.org/PersonB');
+
+        const addButton = page.getByRole('dialog').getByRole('button', { name: 'Add Edge', exact: true });
+        await addButton.click();
+
+        // Dialog should close and we added 1 edge triple = 13 total
+        await expect(dialogHeading).not.toBeVisible();
+        await expect(page.locator('text=13 triples')).toBeVisible();
     });
 });

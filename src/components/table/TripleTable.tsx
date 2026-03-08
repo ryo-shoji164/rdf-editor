@@ -150,7 +150,7 @@ export default function TripleTable() {
   }
 
   return (
-    <div className="flex flex-col h-full text-xs">
+    <div id="joyride-table" className="flex flex-col h-full text-xs">
       {/* Filter bar */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-surface-raised">
         <Search size={13} className="text-text-muted shrink-0" />

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseTurtle, parseNTriples, parseJsonLd, parseAuto } from '../parser'
+import type { ParseError } from '../parser'
 
 const VALID_TURTLE = `
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -45,6 +46,37 @@ describe('parseTurtle', () => {
     expect(result.error).toBeUndefined()
     expect(result.store.size).toBe(0)
     expect(result.prefixes).toHaveProperty('rdf')
+  })
+
+  it('returns empty errors array for valid Turtle', async () => {
+    const result = await parseTurtle(VALID_TURTLE)
+    expect(result.errors).toBeDefined()
+    expect(result.errors).toHaveLength(0)
+  })
+
+  it('returns structured errors array for invalid Turtle', async () => {
+    const result = await parseTurtle(INVALID_TURTLE)
+    expect(result.errors).toBeDefined()
+    const errors = result.errors ?? []
+    expect(errors.length).toBeGreaterThan(0)
+    const err: ParseError = errors[0]
+    expect(err.severity).toBe('error')
+    expect(err.message).toBeTruthy()
+    expect(err.line).toBeGreaterThanOrEqual(1)
+    expect(err.column).toBeGreaterThanOrEqual(1)
+  })
+
+  it('extracts precise line number from N3 error context', async () => {
+    const turtle = `@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+<http://example.org/alice> foaf:name "Alice" .
+<http://example.org/bob> foaf:name INVALID_TOKEN .
+`
+    const result = await parseTurtle(turtle)
+    expect(result.errors).toBeDefined()
+    const errors = result.errors ?? []
+    expect(errors.length).toBeGreaterThan(0)
+    // Error should be on line 3 where INVALID_TOKEN appears
+    expect(errors[0].line).toBe(3)
   })
 })
 

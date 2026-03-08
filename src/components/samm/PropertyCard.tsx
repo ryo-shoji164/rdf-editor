@@ -1,13 +1,9 @@
 import type { SammProperty } from '../../types/rdf'
+import { localName } from '../../lib/rdf/namespaces'
 import { SAMM_C_NS } from '../../lib/samm/vocabulary'
 
 interface Props {
   property: SammProperty
-}
-
-function localName(iri: string) {
-  const sep = Math.max(iri.lastIndexOf('#'), iri.lastIndexOf('/'))
-  return sep >= 0 ? iri.slice(sep + 1) : iri
 }
 
 function charColor(type?: string): string {

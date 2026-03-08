@@ -2,27 +2,34 @@ import { useEffect, useRef } from 'react'
 import Editor, { type Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
 import { useRdfStore } from '../../store/rdfStore'
+import { useDomainStore } from '../../store/domainStore'
+import { useValidationStore } from '../../store/validationStore'
+import { getPlugin } from '../../lib/domains/registry'
+import { setVocabulary } from '../../lib/editor/completionProvider'
 import { registerTurtleLanguage } from '../../lib/editor/languageSetup'
 import {
   registerCompletionProvider,
   disposeCompletionProvider,
 } from '../../lib/editor/completionProvider'
 import {
-  fromParseError,
+  fromParseErrors,
   setDiagnostics,
   applyDiagnostics,
   clearDiagnostics,
 } from '../../lib/editor/diagnosticsProvider'
+import type { DiagnosticItem } from '../../lib/editor/diagnosticsProvider'
 
 export default function TurtleEditor() {
   const turtleText = useRdfStore((s) => s.turtleText)
   const setTurtleText = useRdfStore((s) => s.setTurtleText)
   const parseError = useRdfStore((s) => s.parseError)
+  const parseErrors = useRdfStore((s) => s.parseErrors)
   const isParsing = useRdfStore((s) => s.isParsing)
+  const validationResults = useValidationStore((s) => s.results)
   const editorRef = useRef<MonacoEditor.editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
 
-  // Sync parse errors to Monaco markers via diagnosticsProvider
+  // Sync parse errors and SHACL validation results to Monaco markers
   useEffect(() => {
     const monaco = monacoRef.current
     const editor = editorRef.current
@@ -31,15 +38,25 @@ export default function TurtleEditor() {
     const model = editor.getModel()
     if (!model) return
 
-    const diagnostics = fromParseError(parseError)
-    setDiagnostics(diagnostics)
+    const parseItems = fromParseErrors(parseErrors)
+    const shaclItems: DiagnosticItem[] = validationResults
+      .filter((r) => r.line != null)
+      .map((r) => ({
+        message: r.message,
+        severity: r.severity,
+        line: r.line,
+        source: 'shacl',
+      }))
 
-    if (diagnostics.length > 0) {
+    const allDiagnostics = [...parseItems, ...shaclItems]
+    setDiagnostics(allDiagnostics)
+
+    if (allDiagnostics.length > 0) {
       applyDiagnostics(monaco, model)
     } else {
       clearDiagnostics(monaco, model)
     }
-  }, [parseError])
+  }, [parseErrors, validationResults])
 
   // Cleanup completion provider on unmount
   useEffect(() => {
@@ -58,10 +75,17 @@ export default function TurtleEditor() {
 
     // Register completion provider
     registerCompletionProvider(monaco)
+
+    // Initialize vocabulary
+    const activeDomainId = useDomainStore.getState().activeDomainId
+    const plugin = getPlugin(activeDomainId)
+    if (plugin && plugin.vocabularyItems) {
+      setVocabulary(plugin.vocabularyItems)
+    }
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div id="joyride-editor" className="flex flex-col h-full">
       <Editor
         height="100%"
         language="turtle"

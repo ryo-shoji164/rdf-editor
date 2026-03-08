@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 import { useRdfStore } from './rdfStore'
+import { useValidationStore } from './validationStore'
+import { setVocabulary } from '../lib/editor/completionProvider'
+import { getPlugin } from '../lib/domains/registry'
 
 /**
  * Lightweight domain template definition.
@@ -41,6 +44,13 @@ export const useDomainStore = create<DomainState>((set, get) => ({
   },
 
   setActiveDomain: (id) => {
+    const plugin = getPlugin(id)
+    if (plugin && plugin.vocabularyItems) {
+      setVocabulary(plugin.vocabularyItems)
+    } else {
+      setVocabulary([])
+    }
+    useValidationStore.getState().setShapesText(plugin?.shaclShapes ?? '')
     set({ activeDomainId: id })
   },
 
@@ -54,6 +64,15 @@ export const useDomainStore = create<DomainState>((set, get) => ({
     const rdfStore = useRdfStore.getState()
     rdfStore.setTurtleText(template.turtleContent)
     rdfStore.reparseNow()
+
+    // Update vocabulary for auto-completion based on the plugin
+    const plugin = getPlugin(domainId)
+    if (plugin && plugin.vocabularyItems) {
+      setVocabulary(plugin.vocabularyItems)
+    } else {
+      setVocabulary([])
+    }
+    useValidationStore.getState().setShapesText(plugin?.shaclShapes ?? '')
 
     set({ activeDomainId: domainId })
   },

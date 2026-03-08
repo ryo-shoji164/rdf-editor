@@ -4,9 +4,10 @@ import coseBilkent from 'cytoscape-cose-bilkent'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
-import { useAppStore } from '../../store/appStore'
+import { useValidationStore } from '../../store/validationStore'
 import { addTriple } from '../../lib/rdf/storeWriter'
 import { storeToCytoscape, CY_STYLE } from './graphUtils'
+import { Plus, Link2 } from 'lucide-react'
 import GraphLegend from './GraphLegend'
 import GraphContextMenu from './GraphContextMenu'
 import type { ContextMenuTargetType } from './GraphContextMenu'
@@ -25,7 +26,8 @@ export default function RdfGraph() {
   const setSelectedNode = useUiStore((s) => s.setSelectedNode)
   const activeDomainId = useDomainStore((s) => s.activeDomainId)
   const registeredDomains = useDomainStore((s) => s.registeredDomains)
-  const applyStoreChange = useAppStore((s) => s.applyStoreChange)
+  const applyStoreChange = useRdfStore((s) => s.applyStoreChange)
+  const violatingNodes = useValidationStore((s) => s.violatingNodes)
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
@@ -55,10 +57,7 @@ export default function RdfGraph() {
     }))
 
     // Find the index of 'node:selected' to insert domain styles before it
-    const selectedIdx = baseStyles.findIndex(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (s: any) => s.selector === 'node:selected'
-    )
+    const selectedIdx = baseStyles.findIndex((s) => s.selector === 'node:selected')
     if (selectedIdx >= 0) {
       baseStyles.splice(selectedIdx, 0, ...domainStyles)
     } else {
@@ -163,6 +162,17 @@ export default function RdfGraph() {
     }
   }, [selectedNode])
 
+  // Sync SHACL violation highlights
+  useEffect(() => {
+    const cy = cyRef.current
+    if (!cy) return
+
+    cy.nodes().removeClass('violation')
+    violatingNodes.forEach((nodeIri) => {
+      cy.getElementById(nodeIri).addClass('violation')
+    })
+  }, [violatingNodes])
+
   const handleFitView = useCallback(() => {
     cyRef.current?.fit(undefined, 30)
   }, [])
@@ -206,10 +216,14 @@ export default function RdfGraph() {
     }
   }
 
-  const handleAddEdge = async (predicate: string, object: string, isLiteral: boolean) => {
-    if (!menuNodeId) return
+  const handleAddEdge = async (
+    subject: string,
+    predicate: string,
+    object: string,
+    isLiteral: boolean
+  ) => {
     const added = addTriple(store, {
-      subject: menuNodeId,
+      subject,
       predicate,
       object,
       objectType: isLiteral ? 'literal' : 'iri',
@@ -222,9 +236,27 @@ export default function RdfGraph() {
   const tripleCount = store.size
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div id="joyride-graph" className="flex flex-col h-full relative">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-surface-raised text-xs">
+        <button
+          onClick={() => setIsAddNodeOpen(true)}
+          className="flex items-center gap-1 px-2 py-0.5 rounded bg-accent-blue text-white hover:bg-blue-600 transition-colors"
+        >
+          <Plus size={14} />
+          Add Node
+        </button>
+        <button
+          onClick={() => {
+            setMenuNodeId(selectedNode) // Use currently selected node as Subject default
+            setIsAddEdgeOpen(true)
+          }}
+          className="flex items-center gap-1 px-2 py-0.5 rounded bg-surface-raised text-text-primary border border-surface-raised hover:bg-surface transition-colors"
+        >
+          <Link2 size={14} />
+          Add Edge
+        </button>
+        <div className="w-px h-4 bg-surface-raised mx-1"></div>
         <button
           onClick={handleFitView}
           className="px-2 py-0.5 rounded bg-surface-raised hover:bg-surface text-text-primary border border-surface-raised"
