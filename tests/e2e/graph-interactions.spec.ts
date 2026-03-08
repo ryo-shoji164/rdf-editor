@@ -12,9 +12,13 @@ test.describe('Graph Interactions - Context Menu', () => {
         const cyContainer = page.getByTestId('cytoscape-container');
         await expect(cyContainer).toBeVisible();
 
-        // Right-click in the center of the cytoscape top canvas
+        // Wait for cytoscape to fully initialize and animate layout
+        await page.waitForTimeout(1000);
+
+        // Right-click in the top-left corner of the cytoscape top canvas
+        // This avoids randomly hitting a node rendered by the dynamic layout algorithm.
         const canvas = cyContainer.locator('canvas').last();
-        await canvas.click({ button: 'right', force: true, position: { x: 200, y: 200 } });
+        await canvas.click({ button: 'right', force: true, position: { x: 15, y: 15 } });
 
         // The context menu should appear
         const addNodeMenuItem = page.getByRole('button', { name: 'Add Node...' });

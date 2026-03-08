@@ -31,13 +31,15 @@ export default function GraphContextMenu({
         onClose()
       }
     }
-    // Use a slight delay to prevent immediate firing from the opening click
-    setTimeout(() => {
+    // Use a slight delay to prevent immediate firing from the opening click bubbling up
+    // In headless test environments, event bubbling can take longer, triggering immediate close.
+    const timerId = setTimeout(() => {
       document.addEventListener('click', handleGlobalClick)
       document.addEventListener('contextmenu', handleGlobalClick)
-    }, 10)
+    }, 150)
 
     return () => {
+      clearTimeout(timerId)
       document.removeEventListener('click', handleGlobalClick)
       document.removeEventListener('contextmenu', handleGlobalClick)
     }
