@@ -5,7 +5,7 @@ interface AddEdgeDialogProps {
   isOpen: boolean
   sourceNodeId: string | null
   onClose: () => void
-  onSubmit: (predicate: string, object: string, isLiteral: boolean) => void
+  onSubmit: (subject: string, predicate: string, object: string, isLiteral: boolean) => void
 }
 
 export default function AddEdgeDialog({
@@ -15,12 +15,14 @@ export default function AddEdgeDialog({
   onSubmit,
 }: AddEdgeDialogProps) {
   const { t } = useTranslation()
+  const [subject, setSubject] = useState(sourceNodeId || 'http://example.org/SubjectNode')
   const [predicate, setPredicate] = useState('http://example.org/predicate')
 
   const [object, setObject] = useState('')
   const [isLiteral, setIsLiteral] = useState(false)
 
   const handleCloseWrapper = () => {
+    setSubject(sourceNodeId || 'http://example.org/SubjectNode')
     setPredicate('http://example.org/predicate')
     setObject('')
     setIsLiteral(false)
@@ -31,8 +33,9 @@ export default function AddEdgeDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!predicate.trim() || !object.trim()) return
-    onSubmit(predicate.trim(), object.trim(), isLiteral)
+    const finalSubject = sourceNodeId || subject
+    if (!finalSubject.trim() || !predicate.trim() || !object.trim()) return
+    onSubmit(finalSubject.trim(), predicate.trim(), object.trim(), isLiteral)
     handleCloseWrapper()
   }
 
@@ -53,14 +56,25 @@ export default function AddEdgeDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          {/* Source Node (Read-only) */}
+          {/* Source Node */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
               {t('dialogs.addEdge.fromNode')}
             </label>
-            <div className="w-full bg-surface-alt text-text-muted border border-surface-raised rounded px-3 py-2 text-sm font-mono break-all">
-              {displaySource}
-            </div>
+            {sourceNodeId ? (
+              <div className="w-full bg-surface-alt text-text-muted border border-surface-raised rounded px-3 py-2 text-sm font-mono break-all">
+                {displaySource}
+              </div>
+            ) : (
+              <input
+                type="text"
+                required
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full bg-editor text-text-primary border border-surface-raised rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue font-mono"
+                placeholder="http://example.org/SubjectNode"
+              />
+            )}
           </div>
 
           <div>
@@ -112,7 +126,7 @@ export default function AddEdgeDialog({
             </button>
             <button
               type="submit"
-              disabled={!predicate.trim() || !object.trim()}
+              disabled={!(sourceNodeId || subject.trim()) || !predicate.trim() || !object.trim()}
               className="px-4 py-2 rounded text-sm font-medium bg-accent-blue text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {t('dialogs.addEdge.add')}
