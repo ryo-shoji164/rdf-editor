@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
     - uses: actions/checkout@v4
     
@@ -19,7 +21,7 @@ jobs:
         cache: 'npm'
         
     - name: Install Dependencies
-      run: npm ci
+      run: npm install
 
     - name: Run Type Check
       run: npm run build
