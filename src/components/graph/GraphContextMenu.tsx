@@ -1,26 +1,29 @@
 import { useEffect, useRef } from 'react'
+import { Plus, Link2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export type ContextMenuTargetType = 'bg' | 'node' | null
 
 interface GraphContextMenuProps {
   isOpen: boolean
-  x: number
-  y: number
+  position: { x: number; y: number }
   targetType: ContextMenuTargetType
+  targetId?: string
   onClose: () => void
-  onAddNode: () => void
-  onAddEdge: () => void
+  onAddNode: (position: { x: number; y: number }) => void
+  onAddEdgeFromCurrent: (sourceNodeId: string) => void
 }
 
 export default function GraphContextMenu({
   isOpen,
-  x,
-  y,
+  position,
   targetType,
-  onClose,
+  targetId,
   onAddNode,
-  onAddEdge,
+  onAddEdgeFromCurrent,
+  onClose,
 }: GraphContextMenuProps) {
+  const { t } = useTranslation()
   const menuRef = useRef<HTMLDivElement>(null)
 
   // Close when clicking outside
@@ -51,30 +54,34 @@ export default function GraphContextMenu({
     <div
       ref={menuRef}
       className="absolute z-50 bg-surface border border-surface-raised rounded-md shadow-lg py-1 min-w-[150px] text-sm"
-      style={{ top: y, left: x }}
+      style={{ top: position.y, left: position.x }}
       onContextMenu={(e) => e.preventDefault()}
     >
       {targetType === 'bg' && (
         <button
-          className="w-full text-left px-4 py-2 hover:bg-surface-raised text-text-primary transition-colors"
           onClick={() => {
-            onAddNode()
+            onAddNode(position)
             onClose()
           }}
+          className="w-full text-left px-3 py-2 text-sm text-text-primary hover:bg-surface-raised flex items-center gap-2 group transition-colors"
         >
-          Add Node...
+          <Plus size={14} className="text-text-muted group-hover:text-text-primary" />
+          {t('contextMenu.addNode')}
         </button>
       )}
 
       {targetType === 'node' && (
         <button
-          className="w-full text-left px-4 py-2 hover:bg-surface-raised text-text-primary transition-colors"
           onClick={() => {
-            onAddEdge()
+            if (targetId) {
+              onAddEdgeFromCurrent(targetId)
+            }
             onClose()
           }}
+          className="w-full text-left px-3 py-2 text-sm text-text-primary hover:bg-surface-raised flex items-center gap-2 group transition-colors"
         >
-          Add Edge from Here...
+          <Link2 size={14} className="text-text-muted group-hover:text-text-primary" />
+          {t('contextMenu.addEdge')}
         </button>
       )}
     </div>

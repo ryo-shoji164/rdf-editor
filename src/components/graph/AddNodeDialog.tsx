@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface AddNodeDialogProps {
   isOpen: boolean
@@ -7,6 +8,7 @@ interface AddNodeDialogProps {
 }
 
 export default function AddNodeDialog({ isOpen, onClose, onSubmit }: AddNodeDialogProps) {
+  const { t } = useTranslation()
   const [iri, setIri] = useState('http://example.org/NewNode')
   const [label, setLabel] = useState('')
 
@@ -29,7 +31,7 @@ export default function AddNodeDialog({ isOpen, onClose, onSubmit }: AddNodeDial
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-surface border border-surface-raised rounded-lg shadow-xl w-full max-w-md overflow-hidden">
         <div className="px-5 py-4 border-b border-surface-raised flex justify-between items-center bg-surface-raised/30">
-          <h2 className="text-lg font-medium text-text-primary">Add New Node</h2>
+          <h2 className="text-lg font-medium text-text-primary">{t('dialogs.addNode.title')}</h2>
           <button onClick={handleCloseWrapper} className="text-text-muted hover:text-text-primary">
             ✕
           </button>
@@ -38,7 +40,7 @@ export default function AddNodeDialog({ isOpen, onClose, onSubmit }: AddNodeDial
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
-              Node IRI <span className="text-accent-blue">*</span>
+              {t('dialogs.addNode.nodeIri')} <span className="text-accent-blue">*</span>
             </label>
             <input
               type="text"
@@ -46,21 +48,23 @@ export default function AddNodeDialog({ isOpen, onClose, onSubmit }: AddNodeDial
               value={iri}
               onChange={(e) => setIri(e.target.value)}
               className="w-full bg-editor text-text-primary border border-surface-raised rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
-              placeholder="http://example.org/MyNode or ex:MyNode"
+              placeholder={t('dialogs.addNode.iriPlaceholder')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
-              Label (rdfs:label){' '}
-              <span className="text-text-muted text-xs font-normal">Optional</span>
+              {t('dialogs.addNode.label')}{' '}
+              <span className="text-text-muted text-xs font-normal">
+                {t('dialogs.addNode.optional')}
+              </span>
             </label>
             <input
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               className="w-full bg-editor text-text-primary border border-surface-raised rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
-              placeholder="Human readable display name"
+              placeholder={t('dialogs.addNode.labelPlaceholder')}
             />
           </div>
 
@@ -70,14 +74,14 @@ export default function AddNodeDialog({ isOpen, onClose, onSubmit }: AddNodeDial
               onClick={handleCloseWrapper}
               className="px-4 py-2 rounded text-sm font-medium text-text-secondary hover:bg-surface-raised"
             >
-              Cancel
+              {t('dialogs.addNode.cancel')}
             </button>
             <button
               type="submit"
               disabled={!iri.trim()}
               className="px-4 py-2 rounded text-sm font-medium bg-accent-blue text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Add Node
+              {t('dialogs.addNode.add')}
             </button>
           </div>
         </form>

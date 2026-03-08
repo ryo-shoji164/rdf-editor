@@ -252,15 +252,15 @@ export default function RdfGraph() {
       {/* Context Menu and Dialogs */}
       <GraphContextMenu
         isOpen={menuOpen}
-        x={menuPos.x}
-        y={menuPos.y}
+        position={menuPos}
         targetType={menuTarget}
+        targetId={menuNodeId || undefined}
         onClose={() => setMenuOpen(false)}
         onAddNode={() => {
           setMenuOpen(false)
           setIsAddNodeOpen(true)
         }}
-        onAddEdge={() => {
+        onAddEdgeFromCurrent={() => {
           setMenuOpen(false)
           setIsAddEdgeOpen(true)
         }}

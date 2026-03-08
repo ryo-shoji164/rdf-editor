@@ -1,0 +1,38 @@
+{
+    "layout": {
+        "title": "RDF Editor",
+        "editor": "エディタ",
+        "graph": "グラフ",
+        "table": "テーブル",
+        "split": "分割表示",
+        "open": "開く",
+        "export": "エクスポート",
+        "exportTooltip": "{{format}} 形式でエクスポート",
+        "clearAll": "すべてクリア"
+    },
+    "dialogs": {
+        "addNode": {
+            "title": "新規ノードの追加",
+            "nodeIri": "ノードIRI",
+            "label": "ラベル (rdfs:label)",
+            "optional": "任意",
+            "cancel": "キャンセル",
+            "add": "ノードを追加",
+            "iriPlaceholder": "http://example.org/MyNode または ex:MyNode",
+            "labelPlaceholder": "人間が読める表示名"
+        },
+        "addEdge": {
+            "title": "エッジ (トリプル) の追加",
+            "fromNode": "起点ノード:",
+            "predicate": "述語 (URI)",
+            "literalObj": "リテラル値にする",
+            "objValue": "目的語の値 (IRI またはテキスト)",
+            "cancel": "キャンセル",
+            "add": "エッジを追加"
+        }
+    },
+    "contextMenu": {
+        "addNode": "ノードを追加...",
+        "addEdge": "ここからエッジを伸ばす..."
+    }
+}

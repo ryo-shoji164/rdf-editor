@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface AddEdgeDialogProps {
   isOpen: boolean
@@ -13,7 +14,9 @@ export default function AddEdgeDialog({
   onClose,
   onSubmit,
 }: AddEdgeDialogProps) {
+  const { t } = useTranslation()
   const [predicate, setPredicate] = useState('http://example.org/predicate')
+
   const [object, setObject] = useState('')
   const [isLiteral, setIsLiteral] = useState(false)
 
@@ -43,21 +46,26 @@ export default function AddEdgeDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-surface border border-surface-raised rounded-lg shadow-xl w-full max-w-md overflow-hidden">
         <div className="px-5 py-4 border-b border-surface-raised flex justify-between items-center bg-surface-raised/30">
-          <h2 className="text-lg font-medium text-text-primary">Add Edge (Triple)</h2>
+          <h2 className="text-lg font-medium text-text-primary">{t('dialogs.addEdge.title')}</h2>
           <button onClick={handleCloseWrapper} className="text-text-muted hover:text-text-primary">
             ✕
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          <div className="text-sm bg-editor p-3 rounded border border-surface-raised mb-4">
-            <span className="text-text-secondary">Source (Subject):</span>
-            <div className="font-mono text-accent-cyan break-all mt-1">{displaySource}</div>
+          {/* Source Node (Read-only) */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1">
+              {t('dialogs.addEdge.fromNode')}
+            </label>
+            <div className="w-full bg-surface-alt text-text-muted border border-surface-raised rounded px-3 py-2 text-sm font-mono break-all">
+              {displaySource}
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
-              Predicate (Property/Edge) <span className="text-accent-blue">*</span>
+              {t('dialogs.addEdge.predicateLabel')} <span className="text-accent-blue">*</span>
             </label>
             <input
               type="text"
@@ -72,7 +80,7 @@ export default function AddEdgeDialog({
           <div>
             <div className="flex justify-between items-end mb-1">
               <label className="block text-sm font-medium text-text-secondary">
-                Object (Target) <span className="text-accent-blue">*</span>
+                {t('dialogs.addEdge.objValue')} <span className="text-accent-blue">*</span>
               </label>
               <label className="flex items-center gap-1.5 text-xs text-text-primary cursor-pointer">
                 <input
@@ -81,7 +89,7 @@ export default function AddEdgeDialog({
                   onChange={(e) => setIsLiteral(e.target.checked)}
                   className="rounded border-surface-raised bg-editor text-accent-blue focus:ring-accent-blue focus:ring-offset-surface"
                 />
-                Is Literal Value
+                {t('dialogs.addEdge.literalObj')}
               </label>
             </div>
             <input
@@ -100,14 +108,14 @@ export default function AddEdgeDialog({
               onClick={handleCloseWrapper}
               className="px-4 py-2 rounded text-sm font-medium text-text-secondary hover:bg-surface-raised"
             >
-              Cancel
+              {t('dialogs.addEdge.cancel')}
             </button>
             <button
               type="submit"
               disabled={!predicate.trim() || !object.trim()}
               className="px-4 py-2 rounded text-sm font-medium bg-accent-blue text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Add Edge
+              {t('dialogs.addEdge.add')}
             </button>
           </div>
         </form>
