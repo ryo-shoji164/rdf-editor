@@ -1,5 +1,6 @@
 import type * as N3 from 'n3'
 import type { CyNodeData, CyEdgeData } from '../../types/rdf'
+import type { CytoscapeStyleRule } from '../../types/domain'
 import { shorten, localName } from '../../lib/rdf/namespaces'
 
 export interface CyElements {
@@ -135,8 +136,7 @@ export const TYPE_COLORS: Record<string, { bg: string; border: string; label: st
   Entity: { bg: '#3a2a1a', border: '#fab387', label: 'samm:Entity' },
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const CY_STYLE: any[] = [
+export const CY_STYLE: CytoscapeStyleRule[] = [
   // ─── Base node style ──────────────────────────────────────────
   {
     selector: 'node',

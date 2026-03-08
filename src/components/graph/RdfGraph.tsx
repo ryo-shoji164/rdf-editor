@@ -54,10 +54,7 @@ export default function RdfGraph() {
     }))
 
     // Find the index of 'node:selected' to insert domain styles before it
-    const selectedIdx = baseStyles.findIndex(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (s: any) => s.selector === 'node:selected'
-    )
+    const selectedIdx = baseStyles.findIndex((s) => s.selector === 'node:selected')
     if (selectedIdx >= 0) {
       baseStyles.splice(selectedIdx, 0, ...domainStyles)
     } else {
