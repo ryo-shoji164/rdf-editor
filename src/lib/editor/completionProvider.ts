@@ -143,7 +143,9 @@ export function registerCompletionProvider(monaco: Monaco): void {
       }
 
       // 2. Suggest well-known prefixes after `@prefix`
-      if (textBeforeCursor.trim().startsWith('@prefix')) {
+      // Only suggest if we are actively typing the alias name, before the ':'
+      const prefixMatch = textBeforeCursor.match(/^\s*@prefix\s+([\w-]*)$/)
+      if (prefixMatch) {
         COMMON_PREFIXES.forEach((p) => {
           suggestions.push({
             label: p.prefix + ':',
@@ -158,8 +160,10 @@ export function registerCompletionProvider(monaco: Monaco): void {
         return { suggestions }
       }
 
+      const isInsideUri = /<[^>]*$/.test(textBeforeCursor)
+
       // 3. Suggest prefixes before ':'
-      if (!currentWord.includes(':') && !currentWord.startsWith('@')) {
+      if (!isInsideUri && !currentWord.includes(':') && !currentWord.startsWith('@')) {
         COMMON_PREFIXES.forEach((p) => {
           suggestions.push({
             label: p.prefix + ':',
@@ -178,6 +182,7 @@ export function registerCompletionProvider(monaco: Monaco): void {
       // 4. Suggest vocabulary items
       const vocabSuggestions = vocabularyItems
         .filter((item) => {
+          if (isInsideUri) return false
           if (item.position && item.position !== 'any' && inferredPosition !== 'any') {
             if (item.position !== inferredPosition) return false
           }

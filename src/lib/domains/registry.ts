@@ -7,7 +7,7 @@
 import type { DomainPlugin } from '../../types/domain'
 import { freePlugin } from './freePlugin'
 import { sammPlugin } from '../samm/sammPlugin'
-import { schemaorgPlugin } from '../schemaorg/schemaorgPlugin'
+import { schemaorgPlugin } from './schemaorg/schemaorgPlugin'
 import { bimPlugin } from './bim/plugin'
 import { smartcityPlugin } from './smartcity/plugin'
 
