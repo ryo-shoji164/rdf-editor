@@ -207,7 +207,12 @@ export default function RdfGraph() {
     }
   }
 
-  const handleAddEdge = async (subject: string, predicate: string, object: string, isLiteral: boolean) => {
+  const handleAddEdge = async (
+    subject: string,
+    predicate: string,
+    object: string,
+    isLiteral: boolean
+  ) => {
     const added = addTriple(store, {
       subject,
       predicate,
