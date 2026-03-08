@@ -14,42 +14,42 @@
 // ─── Core interfaces ──────────────────────────────────────────────
 
 export interface DomainPlugin {
-    /** Unique identifier, e.g. 'samm', 'schemaorg', 'bot', 'fhir' */
-    id: string
+  /** Unique identifier, e.g. 'samm', 'schemaorg', 'bot', 'fhir' */
+  id: string
 
-    /** Human-readable name shown in UI (e.g. "SAMM", "Schema.org") */
-    label: string
+  /** Human-readable name shown in UI (e.g. "SAMM", "Schema.org") */
+  label: string
 
-    /** Namespaces this domain adds to the prefix map */
-    namespaces: Record<string, string>
+  /** Namespaces this domain adds to the prefix map */
+  namespaces: Record<string, string>
 
-    /** Pre-built templates users can load */
-    templates: DomainTemplate[]
+  /** Pre-built templates users can load */
+  templates: DomainTemplate[]
 
-    /** Vocabulary items for Monaco auto-completion (optional) */
-    vocabularyItems?: VocabularyItem[]
+  /** Vocabulary items for Monaco auto-completion (optional) */
+  vocabularyItems?: VocabularyItem[]
 
-    /** Cytoscape graph style overrides (optional) */
-    graphStyles?: CytoscapeStyleRule[]
+  /** Cytoscape graph style overrides (optional) */
+  graphStyles?: CytoscapeStyleRule[]
 
-    /** SHACL shapes in Turtle format for validation (optional, future) */
-    shaclShapes?: string
+  /** SHACL shapes in Turtle format for validation (optional, future) */
+  shaclShapes?: string
 }
 
 // ─── Template ─────────────────────────────────────────────────────
 
 export interface DomainTemplate {
-    /** Unique template key within the domain */
-    id: string
+  /** Unique template key within the domain */
+  id: string
 
-    /** Display name shown in the template menu */
-    label: string
+  /** Display name shown in the template menu */
+  label: string
 
-    /** Short description for tooltip or subtitle */
-    description: string
+  /** Short description for tooltip or subtitle */
+  description: string
 
-    /** Full Turtle content loaded into the editor */
-    turtleContent: string
+  /** Full Turtle content loaded into the editor */
+  turtleContent: string
 }
 
 // ─── Vocabulary (for code completion) ─────────────────────────────
@@ -57,31 +57,31 @@ export interface DomainTemplate {
 export type VocabularyItemKind = 'class' | 'property' | 'datatype' | 'individual'
 
 export interface VocabularyItem {
-    /** The full IRI of the vocabulary term */
-    iri: string
+  /** The full IRI of the vocabulary term */
+  iri: string
 
-    /** Prefixed form, e.g. "samm:Aspect" */
-    prefixedName: string
+  /** Prefixed form, e.g. "samm:Aspect" */
+  prefixedName: string
 
-    /** Short label for completion menu */
-    label: string
+  /** Short label for completion menu */
+  label: string
 
-    /** Kind of term — drives the completion icon */
-    kind: VocabularyItemKind
+  /** Kind of term — drives the completion icon */
+  kind: VocabularyItemKind
 
-    /** One-line description for completion detail */
-    description?: string
+  /** One-line description for completion detail */
+  description?: string
 
-    /** Expected position: 'subject' | 'predicate' | 'object' | 'any' */
-    position?: 'subject' | 'predicate' | 'object' | 'any'
+  /** Expected position: 'subject' | 'predicate' | 'object' | 'any' */
+  position?: 'subject' | 'predicate' | 'object' | 'any'
 }
 
 // ─── Graph styling ────────────────────────────────────────────────
 
 export interface CytoscapeStyleRule {
-    /** Cytoscape selector string, e.g. "node[nodeType='iri']" */
-    selector: string
+  /** Cytoscape selector string, e.g. "node[nodeType='iri']" */
+  selector: string
 
-    /** Cytoscape style properties */
-    style: Record<string, string | number>
+  /** Cytoscape style properties */
+  style: Record<string, string | number>
 }

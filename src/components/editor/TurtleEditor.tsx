@@ -3,8 +3,16 @@ import Editor, { type Monaco } from '@monaco-editor/react'
 import type * as MonacoEditor from 'monaco-editor'
 import { useRdfStore } from '../../store/rdfStore'
 import { registerTurtleLanguage } from '../../lib/editor/languageSetup'
-import { registerCompletionProvider, disposeCompletionProvider } from '../../lib/editor/completionProvider'
-import { fromParseError, setDiagnostics, applyDiagnostics, clearDiagnostics } from '../../lib/editor/diagnosticsProvider'
+import {
+  registerCompletionProvider,
+  disposeCompletionProvider,
+} from '../../lib/editor/completionProvider'
+import {
+  fromParseError,
+  setDiagnostics,
+  applyDiagnostics,
+  clearDiagnostics,
+} from '../../lib/editor/diagnosticsProvider'
 
 export default function TurtleEditor() {
   const turtleText = useRdfStore((s) => s.turtleText)

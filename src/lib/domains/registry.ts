@@ -17,42 +17,42 @@ let activeDomainId = 'free'
 
 /** Register a domain plugin. Overwrites if same id exists. */
 export function registerPlugin(plugin: DomainPlugin): void {
-    plugins.set(plugin.id, plugin)
+  plugins.set(plugin.id, plugin)
 }
 
 /** Unregister a domain plugin by id. */
 export function unregisterPlugin(id: string): void {
-    plugins.delete(id)
+  plugins.delete(id)
 }
 
 /** Get a plugin by id. Returns undefined if not found. */
 export function getPlugin(id: string): DomainPlugin | undefined {
-    return plugins.get(id)
+  return plugins.get(id)
 }
 
 /** Get all registered plugins. */
 export function getAllPlugins(): DomainPlugin[] {
-    return Array.from(plugins.values())
+  return Array.from(plugins.values())
 }
 
 /** Get the currently active domain id. */
 export function getActiveDomainId(): string {
-    return activeDomainId
+  return activeDomainId
 }
 
 /** Set the active domain. */
 export function setActiveDomainId(id: string): void {
-    activeDomainId = id
+  activeDomainId = id
 }
 
 /** Get the currently active plugin. */
 export function getActivePlugin(): DomainPlugin | undefined {
-    return plugins.get(activeDomainId)
+  return plugins.get(activeDomainId)
 }
 
 /** Get all vocabulary items from the active domain. */
 export function getActiveVocabulary(): DomainPlugin['vocabularyItems'] {
-    return getActivePlugin()?.vocabularyItems ?? []
+  return getActivePlugin()?.vocabularyItems ?? []
 }
 
 /**
@@ -60,17 +60,17 @@ export function getActiveVocabulary(): DomainPlugin['vocabularyItems'] {
  * Call this at application startup.
  */
 export function initializePlugins(): void {
-    // Lazy imports to avoid circular dependencies
+  // Lazy imports to avoid circular dependencies
 
-    registerPlugin(freePlugin)
-    registerPlugin(sammPlugin)
-    activeDomainId = 'free'
+  registerPlugin(freePlugin)
+  registerPlugin(sammPlugin)
+  activeDomainId = 'free'
 }
 
 /**
  * Reset the registry (for testing).
  */
 export function resetRegistry(): void {
-    plugins.clear()
-    activeDomainId = 'free'
+  plugins.clear()
+  activeDomainId = 'free'
 }
