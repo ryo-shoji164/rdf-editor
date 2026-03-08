@@ -4,6 +4,7 @@ import coseBilkent from 'cytoscape-cose-bilkent'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
+import { useValidationStore } from '../../store/validationStore'
 import { addTriple } from '../../lib/rdf/storeWriter'
 import { storeToCytoscape, CY_STYLE } from './graphUtils'
 import GraphLegend from './GraphLegend'
@@ -25,6 +26,7 @@ export default function RdfGraph() {
   const activeDomainId = useDomainStore((s) => s.activeDomainId)
   const registeredDomains = useDomainStore((s) => s.registeredDomains)
   const applyStoreChange = useRdfStore((s) => s.applyStoreChange)
+  const violatingNodes = useValidationStore((s) => s.violatingNodes)
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
@@ -158,6 +160,17 @@ export default function RdfGraph() {
       cy.getElementById(selectedNode).addClass('selected')
     }
   }, [selectedNode])
+
+  // Sync SHACL violation highlights
+  useEffect(() => {
+    const cy = cyRef.current
+    if (!cy) return
+
+    cy.nodes().removeClass('violation')
+    violatingNodes.forEach((nodeIri) => {
+      cy.getElementById(nodeIri).addClass('violation')
+    })
+  }, [violatingNodes])
 
   const handleFitView = useCallback(() => {
     cyRef.current?.fit(undefined, 30)

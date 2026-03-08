@@ -197,6 +197,16 @@ export const CY_STYLE: CytoscapeStyleRule[] = [
     },
   })),
 
+  // ─── SHACL violation highlight ────────────────────────────────
+  {
+    selector: 'node.violation',
+    style: {
+      'border-color': '#f38ba8',
+      'border-width': 3,
+      'background-color': '#3b1f2a',
+    },
+  },
+
   // ─── Selection ────────────────────────────────────────────────
   {
     selector: 'node:selected',
