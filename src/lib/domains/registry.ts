@@ -7,6 +7,7 @@
 import type { DomainPlugin } from '../../types/domain'
 import { freePlugin } from './freePlugin'
 import { sammPlugin } from '../samm/sammPlugin'
+import { schemaorgPlugin } from '../schemaorg/schemaorgPlugin'
 
 // ─── Internal state ───────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ export function initializePlugins(): void {
 
   registerPlugin(freePlugin)
   registerPlugin(sammPlugin)
+  registerPlugin(schemaorgPlugin)
   activeDomainId = 'free'
 }
 

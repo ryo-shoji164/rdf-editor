@@ -121,12 +121,13 @@ describe('Plugin Registry', () => {
   })
 
   describe('initializePlugins', () => {
-    it('registers free and samm plugins', () => {
+    it('registers free, samm, and schemaorg plugins', () => {
       initializePlugins()
       const plugins = getAllPlugins()
-      expect(plugins).toHaveLength(2)
+      expect(plugins).toHaveLength(3)
       expect(getPlugin('free')).toBeDefined()
       expect(getPlugin('samm')).toBeDefined()
+      expect(getPlugin('schemaorg')).toBeDefined()
     })
 
     it('sets active domain to free', () => {
