@@ -79,7 +79,7 @@ test.describe('Graph Interactions - Context Menu', () => {
 
         // Ensure no node is selected by clicking the background
         const canvas = page.getByTestId('cytoscape-container').locator('canvas').last();
-        await canvas.click({ position: { x: 15, y: 15 } });
+        await canvas.click({ force: true, position: { x: 15, y: 15 } });
 
         // Click the Add Edge button in the toolbar
         const toolbarAddEdgeBtn = page.getByRole('button', { name: 'Add Edge' });
