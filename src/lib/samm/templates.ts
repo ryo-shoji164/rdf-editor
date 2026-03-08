@@ -83,6 +83,17 @@ function formatIriRef(iri: string, baseNs: string): string {
 }
 
 /**
+ * Insert a new property reference into the samm:properties list of a Turtle document.
+ * Handles both empty and non-empty property lists.
+ */
+export function addPropertyToAspectTurtle(turtleText: string, propRef: string): string {
+  return turtleText.replace(/samm:properties\s*\(([^)]*)\)/, (_, inner) => {
+    const trimmed = (inner as string).trim()
+    return trimmed ? `samm:properties ( ${trimmed} ${propRef} )` : `samm:properties ( ${propRef} )`
+  })
+}
+
+/**
  * Minimal SAMM model example for demonstration.
  */
 export const SAMM_EXAMPLE = `@prefix samm: <${SAMM_NS}> .

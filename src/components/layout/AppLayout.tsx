@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore, type ActiveView } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
+import { detectFormatFromFilename } from '../../lib/rdf/parser'
 import TurtleEditor from '../editor/TurtleEditor'
 import RdfGraph from '../graph/RdfGraph'
 import TripleTable from '../table/TripleTable'
@@ -42,14 +43,7 @@ export default function AppLayout() {
     const reader = new FileReader()
     reader.onload = (ev) => {
       const content = ev.target?.result as string
-      const ext = file.name.split('.').pop()?.toLowerCase()
-      if (ext === 'jsonld' || ext === 'json') {
-        importFile(content, 'jsonld')
-      } else if (ext === 'nt') {
-        importFile(content, 'n-triples')
-      } else {
-        importFile(content, 'turtle')
-      }
+      importFile(content, detectFormatFromFilename(file.name))
     }
     reader.readAsText(file)
     e.target.value = ''
