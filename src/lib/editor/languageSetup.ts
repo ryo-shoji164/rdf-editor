@@ -8,7 +8,7 @@ import type { Monaco } from '@monaco-editor/react'
 
 /** Register Turtle language if not already registered. */
 export function registerTurtleLanguage(monaco: Monaco): void {
-  if (monaco.languages.getLanguages().some((l) => l.id === 'turtle')) return
+  if (monaco.languages.getLanguages().some((l: any) => l.id === 'turtle')) return
 
   monaco.languages.register({ id: 'turtle', extensions: ['.ttl', '.turtle'] })
 

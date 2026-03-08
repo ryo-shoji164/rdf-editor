@@ -125,7 +125,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           format: 'application/n-quads',
         })
         downloadText(JSON.stringify(doc, null, 2), 'model.jsonld', 'application/ld+json')
-      } catch (err) {
+      } catch {
         console.error('JSON-LD export failed')
       }
     }
