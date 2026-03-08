@@ -1,9 +1,11 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useMemo } from 'react'
 import cytoscape from 'cytoscape'
 import coseBilkent from 'cytoscape-cose-bilkent'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore } from '../../store/uiStore'
+import { useDomainStore } from '../../store/domainStore'
 import { storeToCytoscape, CY_STYLE } from './graphUtils'
+import GraphLegend from './GraphLegend'
 
 cytoscape.use(coseBilkent)
 
@@ -15,6 +17,41 @@ export default function RdfGraph() {
   const prefixes = useRdfStore((s) => s.prefixes)
   const selectedNode = useUiStore((s) => s.selectedNode)
   const setSelectedNode = useUiStore((s) => s.setSelectedNode)
+  const activeDomainId = useDomainStore((s) => s.activeDomainId)
+  const registeredDomains = useDomainStore((s) => s.registeredDomains)
+
+  // Merge base CY_STYLE with active domain plugin graphStyles
+  const mergedStyle = useMemo(() => {
+    const domain = registeredDomains.get(activeDomainId)
+    if (!domain) return CY_STYLE
+
+    // Check if domain info has a graphStyles property (from DomainPlugin)
+    const domainWithStyles = domain as {
+      graphStyles?: { selector: string; style: Record<string, string | number> }[]
+    }
+    if (!domainWithStyles.graphStyles || domainWithStyles.graphStyles.length === 0) return CY_STYLE
+
+    // Insert domain styles before the :selected rules so they take precedence
+    // over base IRI styles but not over selection styles
+    const baseStyles = [...CY_STYLE]
+    const domainStyles = domainWithStyles.graphStyles.map((rule) => ({
+      selector: rule.selector,
+      style: rule.style,
+    }))
+
+    // Find the index of 'node:selected' to insert domain styles before it
+    const selectedIdx = baseStyles.findIndex(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (s: any) => s.selector === 'node:selected'
+    )
+    if (selectedIdx >= 0) {
+      baseStyles.splice(selectedIdx, 0, ...domainStyles)
+    } else {
+      baseStyles.push(...domainStyles)
+    }
+
+    return baseStyles
+  }, [activeDomainId, registeredDomains])
 
   // Initialize cytoscape once
   useEffect(() => {
@@ -23,7 +60,7 @@ export default function RdfGraph() {
     const cy = cytoscape({
       container: containerRef.current,
       elements: [],
-      style: CY_STYLE,
+      style: mergedStyle,
       userZoomingEnabled: true,
       userPanningEnabled: true,
       boxSelectionEnabled: false,
@@ -44,7 +81,7 @@ export default function RdfGraph() {
 
     cyRef.current = cy
     return () => cy.destroy()
-  }, [setSelectedNode])
+  }, [setSelectedNode, mergedStyle])
 
   // Update graph data when store changes
   useEffect(() => {
@@ -114,7 +151,7 @@ export default function RdfGraph() {
   const tripleCount = store.size
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-surface-raised text-xs">
         <button
@@ -137,6 +174,9 @@ export default function RdfGraph() {
 
       {/* Cytoscape container */}
       <div ref={containerRef} className="flex-1 w-full" />
+
+      {/* Legend overlay */}
+      <GraphLegend />
     </div>
   )
 }
