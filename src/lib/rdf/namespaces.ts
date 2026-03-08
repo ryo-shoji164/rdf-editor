@@ -82,6 +82,15 @@ export function localName(iri: string): string {
 }
 
 /**
+ * Extract the namespace part of an IRI (everything up to and including the last '#').
+ * Returns the full IRI if no '#' is found.
+ */
+export function iriNamespace(iri: string): string {
+  const hash = iri.lastIndexOf('#')
+  return hash >= 0 ? iri.slice(0, hash + 1) : iri
+}
+
+/**
  * Generate @prefix declarations for Turtle output.
  */
 export function prefixDeclarations(extra?: Record<string, string>): string {

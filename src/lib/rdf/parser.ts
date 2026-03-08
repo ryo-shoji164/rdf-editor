@@ -84,6 +84,16 @@ export async function parseJsonLd(text: string): Promise<ParseResult> {
 }
 
 /**
+ * Detect the RDF format based on file extension.
+ */
+export function detectFormatFromFilename(filename: string): RdfFormat {
+  const ext = filename.split('.').pop()?.toLowerCase()
+  if (ext === 'jsonld' || ext === 'json') return 'jsonld'
+  if (ext === 'nt') return 'n-triples'
+  return 'turtle'
+}
+
+/**
  * Auto-detect format and parse text.
  */
 export async function parseAuto(text: string, hint?: RdfFormat): Promise<ParseResult> {

@@ -122,7 +122,7 @@ export const useRdfStore = create<RdfState>((set, get) => ({
   applyStoreChange: async () => {
     const { store, prefixes } = get()
     const turtle = await serializeTurtle(store, prefixes)
-    set({ turtleText: turtle })
+    set({ turtleText: turtle, parseError: null })
     // Reparse the newly generated Turtle to replace the store with a new instance,
     // which triggers React's state change detection and invalidates memoized lists.
     await get().reparseNow()

@@ -4,7 +4,6 @@ import coseBilkent from 'cytoscape-cose-bilkent'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
-import { useAppStore } from '../../store/appStore'
 import { addTriple } from '../../lib/rdf/storeWriter'
 import { storeToCytoscape, CY_STYLE } from './graphUtils'
 import GraphLegend from './GraphLegend'
@@ -25,7 +24,7 @@ export default function RdfGraph() {
   const setSelectedNode = useUiStore((s) => s.setSelectedNode)
   const activeDomainId = useDomainStore((s) => s.activeDomainId)
   const registeredDomains = useDomainStore((s) => s.registeredDomains)
-  const applyStoreChange = useAppStore((s) => s.applyStoreChange)
+  const applyStoreChange = useRdfStore((s) => s.applyStoreChange)
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
@@ -55,10 +54,7 @@ export default function RdfGraph() {
     }))
 
     // Find the index of 'node:selected' to insert domain styles before it
-    const selectedIdx = baseStyles.findIndex(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (s: any) => s.selector === 'node:selected'
-    )
+    const selectedIdx = baseStyles.findIndex((s) => s.selector === 'node:selected')
     if (selectedIdx >= 0) {
       baseStyles.splice(selectedIdx, 0, ...domainStyles)
     } else {
