@@ -29,7 +29,7 @@
     "i18next-browser-languagedetector": "^8.2.1",
     "jsonld": "^8.3.2",
     "lucide-react": "^0.577.0",
-    "monaco-editor": "^0.45.0",
+    "monaco-editor": "^0.55.1",
     "n3": "^2.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -49,7 +49,7 @@
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.19",
-    "eslint": "^9.39.4",
+    "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
@@ -69,5 +69,8 @@
       "eslint --fix",
       "prettier --write"
     ]
+  },
+  "overrides": {
+    "eslint": "$eslint"
   }
 }

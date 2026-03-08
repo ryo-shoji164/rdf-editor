@@ -121,12 +121,15 @@ describe('Plugin Registry', () => {
   })
 
   describe('initializePlugins', () => {
-    it('registers free and samm plugins', () => {
+    it('registers free, samm, schemaorg, bim, and smartcity plugins', () => {
       initializePlugins()
       const plugins = getAllPlugins()
-      expect(plugins).toHaveLength(2)
+      expect(plugins).toHaveLength(5)
       expect(getPlugin('free')).toBeDefined()
       expect(getPlugin('samm')).toBeDefined()
+      expect(getPlugin('schemaorg')).toBeDefined()
+      expect(getPlugin('bim')).toBeDefined()
+      expect(getPlugin('smartcity')).toBeDefined()
     })
 
     it('sets active domain to free', () => {

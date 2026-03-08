@@ -51,6 +51,28 @@ export function shorten(iri: string, extra?: Record<string, string>): string {
 }
 
 /**
+ * Expand a shortened prefix:local name back to a full IRI.
+ * Returns the original string if it doesn't match any known prefix.
+ */
+export function expand(shortened: string, extra?: Record<string, string>): string {
+  if (!shortened.includes(':')) return shortened
+
+  const [pfx, local] = shortened.split(':', 2)
+
+  // Check extra prefixes first
+  if (extra && pfx in extra) {
+    return extra[pfx] + local
+  }
+
+  // Check built-in prefixes
+  if (pfx in NS) {
+    return NS[pfx as KnownPrefix] + local
+  }
+
+  return shortened
+}
+
+/**
  * Extract the local name from a full IRI (after the last '#' or '/').
  * Returns the full IRI if no separator is found.
  */
