@@ -4,7 +4,6 @@ import coseBilkent from 'cytoscape-cose-bilkent'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
-import { useAppStore } from '../../store/appStore'
 import { addTriple } from '../../lib/rdf/storeWriter'
 import { storeToCytoscape, CY_STYLE } from './graphUtils'
 import GraphLegend from './GraphLegend'
@@ -25,7 +24,7 @@ export default function RdfGraph() {
   const setSelectedNode = useUiStore((s) => s.setSelectedNode)
   const activeDomainId = useDomainStore((s) => s.activeDomainId)
   const registeredDomains = useDomainStore((s) => s.registeredDomains)
-  const applyStoreChange = useAppStore((s) => s.applyStoreChange)
+  const applyStoreChange = useRdfStore((s) => s.applyStoreChange)
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })

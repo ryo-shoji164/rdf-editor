@@ -122,6 +122,6 @@ export const useRdfStore = create<RdfState>((set, get) => ({
   applyStoreChange: async () => {
     const { store, prefixes } = get()
     const turtle = await serializeTurtle(store, prefixes)
-    set({ turtleText: turtle })
+    set({ turtleText: turtle, parseError: null })
   },
 }))
