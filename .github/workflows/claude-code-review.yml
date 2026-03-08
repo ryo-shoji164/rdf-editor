@@ -12,11 +12,11 @@ on:
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
+    # Only run for non-maintainer contributors
     if: |
-      github.event.pull_request.user.login == 'external-contributor' ||
-      github.event.pull_request.user.login == 'new-developer' ||
-      github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+      github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' ||
+      github.event.pull_request.author_association == 'CONTRIBUTOR' ||
+      github.event.pull_request.author_association == 'NONE'
 
     runs-on: ubuntu-latest
     permissions:
