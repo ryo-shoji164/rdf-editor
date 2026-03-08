@@ -1,11 +1,17 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react'
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import cytoscape from 'cytoscape'
 import coseBilkent from 'cytoscape-cose-bilkent'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore } from '../../store/uiStore'
 import { useDomainStore } from '../../store/domainStore'
+import { useAppStore } from '../../store/appStore'
+import { addTriple } from '../../lib/rdf/storeWriter'
 import { storeToCytoscape, CY_STYLE } from './graphUtils'
 import GraphLegend from './GraphLegend'
+import GraphContextMenu from './GraphContextMenu'
+import type { ContextMenuTargetType } from './GraphContextMenu'
+import AddNodeDialog from './AddNodeDialog'
+import AddEdgeDialog from './AddEdgeDialog'
 
 cytoscape.use(coseBilkent)
 
@@ -19,6 +25,15 @@ export default function RdfGraph() {
   const setSelectedNode = useUiStore((s) => s.setSelectedNode)
   const activeDomainId = useDomainStore((s) => s.activeDomainId)
   const registeredDomains = useDomainStore((s) => s.registeredDomains)
+  const applyStoreChange = useAppStore((s) => s.applyStoreChange)
+
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
+  const [menuTarget, setMenuTarget] = useState<ContextMenuTargetType>(null)
+  const [menuNodeId, setMenuNodeId] = useState<string | null>(null)
+
+  const [isAddNodeOpen, setIsAddNodeOpen] = useState(false)
+  const [isAddEdgeOpen, setIsAddEdgeOpen] = useState(false)
 
   // Merge base CY_STYLE with active domain plugin graphStyles
   const mergedStyle = useMemo(() => {
@@ -77,6 +92,25 @@ export default function RdfGraph() {
 
     cy.on('tap', (e) => {
       if (e.target === cy) setSelectedNode(null)
+    })
+
+    cy.on('cxttap', (e) => {
+      // Get position relative to the graph container
+      const x = e.renderedPosition ? e.renderedPosition.x : e.originalEvent.offsetX
+      const y = e.renderedPosition ? e.renderedPosition.y : e.originalEvent.offsetY
+
+      setMenuPos({ x, y })
+
+      if (e.target === cy) {
+        setMenuTarget('bg')
+        setMenuNodeId(null)
+      } else if (e.target.isNode && e.target.isNode()) {
+        setMenuTarget('node')
+        setMenuNodeId(e.target.data('fullIri'))
+      } else {
+        setMenuTarget(null)
+      }
+      setMenuOpen(true)
     })
 
     cyRef.current = cy
@@ -148,6 +182,43 @@ export default function RdfGraph() {
     layout.run()
   }, [])
 
+  const handleAddNode = async (iri: string, label?: string) => {
+    // Add default type quad so empty nodes behave like resources initially
+    const added = addTriple(store, {
+      subject: iri,
+      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: 'http://www.w3.org/2000/01/rdf-schema#Resource',
+      objectType: 'iri',
+    })
+
+    let addedLabel = false
+    if (label) {
+      addedLabel = addTriple(store, {
+        subject: iri,
+        predicate: 'http://www.w3.org/2000/01/rdf-schema#label',
+        object: label,
+        objectType: 'literal',
+      })
+    }
+
+    if (added || addedLabel) {
+      await applyStoreChange()
+    }
+  }
+
+  const handleAddEdge = async (predicate: string, object: string, isLiteral: boolean) => {
+    if (!menuNodeId) return
+    const added = addTriple(store, {
+      subject: menuNodeId,
+      predicate,
+      object,
+      objectType: isLiteral ? 'literal' : 'iri',
+    })
+    if (added) {
+      await applyStoreChange()
+    }
+  }
+
   const tripleCount = store.size
 
   return (
@@ -173,10 +244,40 @@ export default function RdfGraph() {
       </div>
 
       {/* Cytoscape container */}
-      <div ref={containerRef} className="flex-1 w-full" />
+      <div ref={containerRef} data-testid="cytoscape-container" className="flex-1 w-full" />
 
       {/* Legend overlay */}
       <GraphLegend />
+
+      {/* Context Menu and Dialogs */}
+      <GraphContextMenu
+        isOpen={menuOpen}
+        x={menuPos.x}
+        y={menuPos.y}
+        targetType={menuTarget}
+        onClose={() => setMenuOpen(false)}
+        onAddNode={() => {
+          setMenuOpen(false)
+          setIsAddNodeOpen(true)
+        }}
+        onAddEdge={() => {
+          setMenuOpen(false)
+          setIsAddEdgeOpen(true)
+        }}
+      />
+
+      <AddNodeDialog
+        isOpen={isAddNodeOpen}
+        onClose={() => setIsAddNodeOpen(false)}
+        onSubmit={handleAddNode}
+      />
+
+      <AddEdgeDialog
+        isOpen={isAddEdgeOpen}
+        sourceNodeId={menuNodeId}
+        onClose={() => setIsAddEdgeOpen(false)}
+        onSubmit={handleAddEdge}
+      />
     </div>
   )
 }
