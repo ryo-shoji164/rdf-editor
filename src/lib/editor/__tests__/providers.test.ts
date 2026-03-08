@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { setVocabulary, getVocabulary, type CompletionVocabularyItem } from '../completionProvider'
+import {
+  setVocabulary,
+  getVocabulary,
+  registerCompletionProvider,
+  type CompletionVocabularyItem,
+} from '../completionProvider'
+import type { Monaco } from '@monaco-editor/react'
+import type * as MonacoEditor from 'monaco-editor'
 import { fromParseError, setDiagnostics, getDiagnostics } from '../diagnosticsProvider'
 
 // ─── Completion Provider Tests ────────────────────────────────────
@@ -33,6 +40,76 @@ describe('completionProvider', () => {
       setVocabulary([{ iri: 'http://b', prefixedName: 'b:B', label: 'B', kind: 'property' }])
       expect(getVocabulary()).toHaveLength(1)
       expect(getVocabulary()[0].prefixedName).toBe('b:B')
+    })
+  })
+
+  describe('provideCompletionItems logic', () => {
+    it('suggests @prefix and well-known prefixes correctly', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let capturedProvider: any = null
+      const mockMonaco = {
+        languages: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          registerCompletionItemProvider: (lang: string, provider: any) => {
+            capturedProvider = provider
+            return { dispose: () => {} }
+          },
+          CompletionItemKind: {
+            Keyword: 1,
+            Module: 2,
+            Class: 3,
+            Property: 4,
+            Struct: 5,
+            Value: 6,
+            Text: 7,
+          },
+        },
+      } as unknown as Monaco
+
+      registerCompletionProvider(mockMonaco)
+
+      const createModel = (textBeforeCursor: string) =>
+        ({
+          getValueInRange: () => textBeforeCursor,
+        }) as unknown as MonacoEditor.editor.ITextModel
+
+      const position = { lineNumber: 1, column: 10 } as MonacoEditor.Position
+
+      // 1. Typing "@" should suggest "@prefix"
+      const res1 = capturedProvider.provideCompletionItems(createModel('@'), position)
+      expect(res1.suggestions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ label: '@prefix', insertText: '@prefix ' }),
+        ])
+      )
+
+      // 2. Typing "@prefix " should suggest known prefixes
+      const res2 = capturedProvider.provideCompletionItems(createModel('@prefix '), position)
+      expect(res2.suggestions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            label: 'foaf:',
+            insertText: 'foaf: <http://xmlns.com/foaf/0.1/> .',
+          }),
+        ])
+      )
+
+      // 3. Typing "@prefix foa" should suggest "foaf:"
+      const res3 = capturedProvider.provideCompletionItems(createModel('@prefix foa'), position)
+      expect(res3.suggestions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            label: 'foaf:',
+            insertText: 'foaf: <http://xmlns.com/foaf/0.1/> .',
+          }),
+        ])
+      )
+
+      // 4. Entering URI (e.g. "@prefix foaf: <") should NOT suggest well-known prefixes
+      const res4 = capturedProvider.provideCompletionItems(createModel('@prefix foaf: <'), position)
+      expect(res4.suggestions).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ label: 'foaf:' })])
+      )
     })
   })
 })

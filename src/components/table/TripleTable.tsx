@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { useRdfStore } from '../../store/rdfStore'
 import { useUiStore } from '../../store/uiStore'
 import { storeToTriples } from '../../lib/rdf/store'
-import { shorten } from '../../lib/rdf/namespaces'
+import { updateTriple } from '../../lib/rdf/storeWriter'
+import { shorten, expand } from '../../lib/rdf/namespaces'
 import type { Triple } from '../../types/rdf'
 import { Search } from 'lucide-react'
 
@@ -11,9 +12,29 @@ const PAGE_SIZE = 100
 export default function TripleTable() {
   const store = useRdfStore((s) => s.store)
   const prefixes = useRdfStore((s) => s.prefixes)
+  const applyStoreChange = useRdfStore((s) => s.applyStoreChange)
   const setSelectedNode = useUiStore((s) => s.setSelectedNode)
+
   const [filter, setFilter] = useState('')
   const [page, setPage] = useState(0)
+
+  // { rowIndex: number, column: string, value: string }
+  const [editingCell, setEditingCell] = useState<{
+    rowIndex: number
+    column: 'subject' | 'predicate' | 'object'
+    value: string
+  } | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (editingCell && inputRef.current) {
+      inputRef.current.focus()
+      // Optional: place cursor at the end
+      inputRef.current.selectionStart = inputRef.current.value.length
+      inputRef.current.selectionEnd = inputRef.current.value.length
+    }
+  }, [editingCell])
 
   const allTriples = useMemo(() => storeToTriples(store), [store])
 
@@ -35,6 +56,97 @@ export default function TripleTable() {
     if (type === 'literal') return `"${iri}"`
     if (type === 'blank') return `_:${iri}`
     return shorten(iri, prefixes)
+  }
+
+  // Double click handler
+  const handleDoubleClick = (
+    rowIndex: number,
+    column: 'subject' | 'predicate' | 'object',
+    triple: Triple
+  ) => {
+    // Determine the raw value to edit
+    let rawValue = triple[column]
+    if (column === 'object' && triple.objectType === 'literal') {
+      rawValue = triple.object // Edit the literal content directly
+    } else if (triple.objectType === 'blank' && column === 'object') {
+      rawValue = `_:${triple.object}`
+    } else {
+      // For IRIs, if it can be shortened, we let them edit the shortened form
+      rawValue = shorten(triple[column], prefixes)
+    }
+
+    setEditingCell({ rowIndex, column, value: rawValue })
+  }
+
+  const handleSave = async (triple: Triple) => {
+    if (!editingCell) return
+
+    const { column, value } = editingCell
+    setEditingCell(null)
+
+    // Expand if needed
+    const newValue = value.trim()
+    if (!newValue) return // Don't allow empty deletes through inline edit yet
+
+    // Determine type and full IRI/Literal representation
+    let newObject = triple.object
+    let newSubject = triple.subject
+    let newPredicate = triple.predicate
+
+    if (column === 'subject') {
+      newSubject = expand(newValue, prefixes)
+    } else if (column === 'predicate') {
+      newPredicate = expand(newValue, prefixes)
+    } else if (column === 'object') {
+      if (triple.objectType === 'literal') {
+        newObject = newValue
+      } else if (newValue.startsWith('_:')) {
+        newObject = newValue.substring(2)
+      } else {
+        newObject = expand(newValue, prefixes)
+      }
+    }
+
+    // Only update if something changed
+    if (
+      newSubject === triple.subject &&
+      newPredicate === triple.predicate &&
+      newObject === triple.object
+    ) {
+      return
+    }
+
+    const newTriple: Triple = {
+      subject: newSubject,
+      predicate: newPredicate,
+      object: newObject,
+      objectType: triple.objectType, // Keep the same type for now (unless we detect blank node change, but let's keep it simple)
+      language: column === 'object' ? triple.language : undefined,
+      datatype: column === 'object' ? triple.datatype : undefined,
+    }
+
+    // If they changed object to a blank node notation, ensure objectType is updated just in case
+    if (column === 'object' && newValue.startsWith('_:')) {
+      newTriple.objectType = 'blank'
+    } else if (column === 'object' && triple.objectType === 'blank' && !newValue.startsWith('_:')) {
+      // Changing from blank node to IRI
+      newTriple.objectType = 'iri'
+    }
+
+    const changed = updateTriple(store, triple, newTriple)
+    if (changed) {
+      await applyStoreChange()
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent, triple: Triple) => {
+    if (e.key === 'Enter') {
+      e.stopPropagation()
+      handleSave(triple)
+    } else if (e.key === 'Escape') {
+      e.stopPropagation()
+      setEditingCell(null)
+    }
   }
 
   return (
@@ -71,36 +183,76 @@ export default function TripleTable() {
             {paginated.map((t, i) => (
               <tr
                 key={i}
-                className="border-b border-surface-raised hover:bg-surface-raised cursor-pointer"
-                onClick={() =>
-                  t.objectType === 'iri' ? setSelectedNode(t.object) : setSelectedNode(t.subject)
-                }
+                className="border-b border-surface-raised hover:bg-surface-raised transition-colors"
+                onClick={(e) => {
+                  // Don't select row if we are currently clicking inside an input
+                  if ((e.target as HTMLElement).tagName !== 'INPUT') {
+                    if (t.objectType === 'iri') {
+                      setSelectedNode(t.object)
+                    } else {
+                      setSelectedNode(t.subject)
+                    }
+                  }
+                }}
               >
-                <td className="px-3 py-1 text-accent-blue truncate max-w-0 w-1/3">
-                  <span title={t.subject}>{formatRdfTerm(t.subject)}</span>
-                </td>
-                <td className="px-3 py-1 text-accent-green truncate max-w-0 w-1/3">
-                  <span title={t.predicate}>{formatRdfTerm(t.predicate)}</span>
-                </td>
-                <td className="px-3 py-1 max-w-0 w-1/3">
-                  {t.objectType === 'literal' ? (
-                    <span className="text-accent-yellow truncate block" title={t.object}>
-                      "{t.object}"
-                      {t.language && <span className="text-text-muted ml-1">@{t.language}</span>}
-                      {t.datatype && !t.language && (
-                        <span className="text-text-muted ml-1">
-                          ^^{shorten(t.datatype, prefixes)}
-                        </span>
+                {['subject', 'predicate', 'object'].map((col) => {
+                  const isEditing = editingCell?.rowIndex === i && editingCell?.column === col
+                  const column = col as 'subject' | 'predicate' | 'object'
+
+                  return (
+                    <td
+                      key={col}
+                      className={`px-3 py-1 truncate max-w-0 w-1/3 ${isEditing ? 'p-0' : ''}`}
+                      onDoubleClick={() => !isEditing && handleDoubleClick(i, column, t)}
+                    >
+                      {isEditing ? (
+                        <input
+                          ref={inputRef}
+                          type="text"
+                          className="w-full bg-editor text-text-primary px-2 py-1 outline-none focus:ring-1 focus:ring-accent-blue font-mono text-xs border border-accent-blue rounded-sm"
+                          value={editingCell.value}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) =>
+                            setEditingCell({ ...editingCell, value: e.target.value })
+                          }
+                          onBlur={() => handleSave(t)}
+                          onKeyDown={(e) => handleKeyDown(e, t)}
+                        />
+                      ) : (
+                        <div
+                          className={`truncate ${col === 'subject' ? 'text-accent-blue' : col === 'predicate' ? 'text-accent-green' : ''}`}
+                          title={
+                            col === 'object' && t.objectType === 'literal'
+                              ? t.object
+                              : formatRdfTerm(t[column], col === 'object' ? t.objectType : 'iri')
+                          }
+                        >
+                          {col === 'object' ? (
+                            t.objectType === 'literal' ? (
+                              <span className="text-accent-yellow">
+                                "{t.object}"
+                                {t.language && (
+                                  <span className="text-text-muted ml-1">@{t.language}</span>
+                                )}
+                                {t.datatype && !t.language && (
+                                  <span className="text-text-muted ml-1">
+                                    ^^{shorten(t.datatype, prefixes)}
+                                  </span>
+                                )}
+                              </span>
+                            ) : t.objectType === 'blank' ? (
+                              <span className="text-text-muted">_:{t.object}</span>
+                            ) : (
+                              <span className="text-accent-blue">{formatRdfTerm(t.object)}</span>
+                            )
+                          ) : (
+                            <span>{formatRdfTerm(t[column])}</span>
+                          )}
+                        </div>
                       )}
-                    </span>
-                  ) : t.objectType === 'blank' ? (
-                    <span className="text-text-muted">_:{t.object}</span>
-                  ) : (
-                    <span className="text-accent-blue truncate block" title={t.object}>
-                      {formatRdfTerm(t.object)}
-                    </span>
-                  )}
-                </td>
+                    </td>
+                  )
+                })}
               </tr>
             ))}
             {paginated.length === 0 && (
