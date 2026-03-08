@@ -1,4 +1,4 @@
-import type { DomainPlugin, DomainTemplate } from '../../types/domain'
+import type { DomainPlugin, DomainTemplate } from '../../../types/domain'
 import {
   ARTICLE_TEMPLATE,
   PRODUCT_TEMPLATE,
