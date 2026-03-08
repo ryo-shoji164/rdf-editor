@@ -163,6 +163,94 @@ Register plugins in `src/store/initDomains.ts`. Do not hard-code domain logic in
 
 ---
 
+## Security Rules
+
+AI agents **must** follow these rules when writing code for this repository. Violations introduce security vulnerabilities into a public web application.
+
+### A. Secrets & Credentials
+
+- Never hardcode API keys, tokens, passwords, or secrets in any source file.
+- API keys for future features (LLM API for I-1, GitHub PAT for E-2) must be stored in `localStorage` only after an explicit user consent UI — never in source code or `.env` files committed to the repo.
+- `.env` files are gitignored and must never be committed.
+- Never log secrets to the console, even in error handlers:
+  ```ts
+  // BAD
+  console.error('Request failed', { token: userToken })
+
+  // GOOD
+  console.error('Request failed — check your token in settings')
+  ```
+
+### B. XSS Prevention
+
+- Never use `dangerouslySetInnerHTML` with user-provided content (RDF labels, IRIs, literal values).
+- Graph node labels (Cytoscape), table cell values, and status bar text must all be set as text content, not `innerHTML`.
+- When implementing graph node tooltips or custom HTML labels in Cytoscape, use text escaping — never inject raw label strings as HTML.
+- Monaco Editor content is sandboxed — do not inject user RDF content into the DOM outside of Monaco.
+
+### C. URL Validation for External Fetch
+
+- When implementing SPARQL endpoint fetch (E-3) and Gist integration (E-2), validate URLs before fetching.
+- Allow only `https://` scheme — reject `http://`, `javascript:`, `data:`, `file:`, and other schemes.
+- Show a clear error message to the user for invalid schemes rather than silently ignoring the input.
+- Do not follow open redirects — validate the final URL, not just the initial one.
+- Use this pattern as the validation reference:
+  ```ts
+  function isSafeUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url)
+      return parsed.protocol === 'https:'
+    } catch {
+      return false
+    }
+  }
+  ```
+
+### D. Dependency Security
+
+- Run `npm run audit` before adding new dependencies.
+- Do not add packages with known high or critical vulnerabilities.
+- Prefer packages that are actively maintained (recent commits, not archived).
+- Always commit `package-lock.json` — never delete or gitignore it.
+- Do not install packages at runtime (no `eval`-based dynamic loading).
+
+### E. No Code Execution of User Input
+
+- Never use `eval()`, `new Function()`, or `setTimeout(string)` with user-provided content.
+- The Monaco Editor displays code but must never execute it.
+- Dynamic `import()` must only use static string paths — never user-provided paths.
+
+### F. Token & Credential Storage (for future E-2, I-1 features)
+
+- User-provided API keys (GitHub PAT, OpenAI key) must only be stored in `localStorage`.
+- Always show a clear warning in the UI: "This token is stored in your browser's localStorage. Do not use this on shared computers."
+- Provide a "Clear token" button that calls `localStorage.removeItem(key)`.
+- Never include tokens in URLs, URL hash, or shareable links — the E-1 shareable URL feature must explicitly exclude tokens from the serialized state.
+
+### G. GitHub Actions Security
+
+- All workflow files must declare `permissions:` explicitly at the job level with minimal required permissions.
+- Use `permissions: read-all` as a default, and only grant `write` permissions where strictly necessary.
+- Pin third-party GitHub Actions to a full commit SHA rather than a mutable tag:
+  ```yaml
+  # BAD
+  - uses: actions/checkout@v4
+
+  # GOOD
+  - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af68 # v4.2.2
+  ```
+- Never print `GITHUB_TOKEN` or any secret to logs.
+- Do not use the `pull_request_target` trigger with code checkout from the PR branch (risk of privilege escalation).
+
+### H. Content Security Policy
+
+- When adding a `<meta http-equiv="Content-Security-Policy">` tag to `index.html`, restrict `script-src` to `'self'` and specific trusted CDNs only.
+- Do not use `'unsafe-eval'` or `'unsafe-inline'` in CSP.
+- Monaco Editor uses web workers — document the correct worker-compatible CSP before implementing it.
+
+---
+
+
 ## What NOT to do
 
 - Do not add `console.log` for debugging — use proper error handling or `console.warn`/`console.error`.
