@@ -15,6 +15,13 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      react-ecosystem:
+        dependency-type: "all"
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
