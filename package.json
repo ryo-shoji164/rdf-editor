@@ -44,7 +44,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@types/cytoscape": "^3.31.0",
+    "@types/cytoscape": "^3.21.4",
     "@types/jsonld": "^1.5.14",
     "@types/n3": "^1.16.4",
     "@types/react": "^18.2.66",
@@ -52,9 +52,9 @@
     "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.19",
     "husky": "^9.1.7",
-    "jsdom": "^28.1.0",
+    "jsdom": "^22.1.0",
     "lint-staged": "^16.3.2",
-    "oxlint": "^1.16.0",
+    "oxlint": "1.16.0",
     "postcss": "^8.4.38",
     "prettier": "^3.8.1",
     "tailwindcss": "^3.4.1",
@@ -67,5 +67,22 @@
       "oxlint --fix",
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": [
+        "darwin",
+        "linux",
+        "win32"
+      ],
+      "cpu": [
+        "x64",
+        "arm64"
+      ],
+      "libc": [
+        "glibc",
+        "musl"
+      ]
+    }
   }
 }
