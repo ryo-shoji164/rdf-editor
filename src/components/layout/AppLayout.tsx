@@ -219,25 +219,27 @@ export default function AppLayout() {
               <FileDown size={13} />
               <span className="hidden sm:inline">{t('layout.export')}</span>
             </button>
-            <div className="hidden group-hover:flex flex-col absolute right-0 top-full mt-1 bg-surface-raised border border-surface-raised rounded shadow-lg z-50 min-w-36">
-              <button
-                onClick={() => exportAs('turtle')}
-                className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
-              >
-                Turtle (.ttl)
-              </button>
-              <button
-                onClick={() => exportAs('n-triples')}
-                className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
-              >
-                N-Triples (.nt)
-              </button>
-              <button
-                onClick={() => exportAs('jsonld')}
-                className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
-              >
-                JSON-LD (.jsonld)
-              </button>
+            <div className="hidden group-hover:flex flex-col absolute right-0 top-full pt-1 z-50 min-w-36">
+              <div className="flex flex-col bg-surface-raised border border-surface-raised rounded shadow-lg overflow-hidden">
+                <button
+                  onClick={() => exportAs('turtle')}
+                  className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
+                >
+                  Turtle (.ttl)
+                </button>
+                <button
+                  onClick={() => exportAs('n-triples')}
+                  className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
+                >
+                  N-Triples (.nt)
+                </button>
+                <button
+                  onClick={() => exportAs('jsonld')}
+                  className="px-3 py-2 text-xs text-left hover:bg-surface text-text-primary"
+                >
+                  JSON-LD (.jsonld)
+                </button>
+              </div>
             </div>
           </div>
 
