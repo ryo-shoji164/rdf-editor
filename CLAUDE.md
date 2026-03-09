@@ -22,7 +22,7 @@ Read this file fully before making any changes.
 | Internationalization | i18next + i18next-browser-languagedetector | 25 |
 | Unit test framework | Vitest + Testing Library | 4 |
 | E2E test framework | Playwright | 1.58 |
-| Linter | ESLint 9 (flat config) | 9 |
+| Linter | Oxlint | 1 |
 | Formatter | Prettier | 3 |
 
 ---
@@ -33,7 +33,7 @@ Read this file fully before making any changes.
 - **Prettier**: `semi: false`, `singleQuote: true`, `tabWidth: 2`, `printWidth: 100`, `trailingComma: es5`. Markdown files (`*.md`) are excluded via `.prettierignore`.
 - **Tailwind theme**: Catppuccin-inspired dark palette with custom `surface`, `accent`, and `text` color scales. Font: JetBrains Mono. See `tailwind.config.js`.
 - **Vite base path**: Automatically set to `/rdf-editor/` when `GITHUB_ACTIONS` env is detected, for GitHub Pages deployment.
-- **Dependabot**: Configured for weekly npm and GitHub Actions updates (Monday 09:00 JST, max 5 open PRs).
+- **Dependabot**: Configured for weekly pnpm and GitHub Actions updates (Monday 09:00 JST, max 5 open PRs).
 
 ---
 
@@ -86,22 +86,22 @@ tests/
 
 ## Code Style
 
-All code is enforced by **ESLint** and **Prettier**. Run before committing:
+All code is enforced by **Oxlint** and **Prettier**. Run before committing:
 
 ```bash
-npm run lint            # ESLint check
-npm run lint:fix        # ESLint auto-fix
-npm run format          # Prettier format all src files
-npm run format:check    # Prettier check (CI-friendly)
-npm run typecheck       # TypeScript type check (tsc --noEmit)
-npm run test            # Vitest run (unit tests)
-npm run test:watch      # Vitest watch mode
-npm run test:coverage   # Vitest with coverage
-npm run e2e             # Playwright E2E tests (Chromium, Firefox, WebKit)
-npm run audit           # npm audit --audit-level=high
+pnpm run lint            # Oxlint check
+pnpm run lint:fix        # Oxlint auto-fix
+pnpm run format          # Prettier format all src files
+pnpm run format:check    # Prettier check (CI-friendly)
+pnpm run typecheck       # TypeScript type check (tsc --noEmit)
+pnpm run test            # Vitest run (unit tests)
+pnpm run test:watch      # Vitest watch mode
+pnpm run test:coverage   # Vitest with coverage
+pnpm run e2e             # Playwright E2E tests (Chromium, Firefox, WebKit)
+pnpm run audit           # pnpm audit --audit-level=high
 ```
 
-A pre-commit hook runs `lint-staged` automatically (ESLint + Prettier on staged files).
+A pre-commit hook runs `lint-staged` automatically (Oxlint + Prettier on staged files).
 
 ### Key rules
 
@@ -122,7 +122,7 @@ A pre-commit hook runs `lint-staged` automatically (ESLint + Prettier on staged 
 | Types / Interfaces | PascalCase | `interface ParseResult`, `type RdfFormat` |
 | Constants | UPPER_SNAKE_CASE or camelCase (prefer camelCase for module-level) | `const END_OF_LINE_COLUMN = 9999` |
 
-### Import order (enforced by ESLint)
+### Import order (enforced by Oxlint)
 
 ```ts
 // 1. External packages
@@ -191,8 +191,8 @@ These are pure library functions (no React). The component in `src/components/ed
 
 - **Unit tests** live in `__tests__/` subdirectories next to source (preferred) or co-located with the module (e.g., `parser.test.ts` next to `parser.ts`). Prefer `__tests__/` for new tests.
 - Test files are named `<module>.test.ts` or `<module>.test.tsx`.
-- Run unit tests: `npm run test` (or `npm run test:watch` for development).
-- **E2E tests** live in `tests/e2e/` at the project root and run via Playwright across Chromium, Firefox, and WebKit: `npm run e2e`.
+- Run unit tests: `pnpm run test` (or `pnpm run test:watch` for development).
+- **E2E tests** live in `tests/e2e/` at the project root and run via Playwright across Chromium, Firefox, and WebKit: `pnpm run e2e`.
 - Write unit tests for all functions in `src/lib/`. Component tests are welcome but not required.
 
 ---
@@ -275,10 +275,10 @@ AI agents **must** follow these rules when writing code for this repository. Vio
 
 ### D. Dependency Security
 
-- Run `npm run audit` before adding new dependencies.
+- Run `pnpm run audit` before adding new dependencies.
 - Do not add packages with known high or critical vulnerabilities.
 - Prefer packages that are actively maintained (recent commits, not archived).
-- Always commit `package-lock.json` — never delete or gitignore it.
+- Always commit `pnpm-lock.yaml` — never delete or gitignore it.
 - Do not install packages at runtime (no `eval`-based dynamic loading).
 
 ### E. No Code Execution of User Input

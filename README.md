@@ -30,29 +30,29 @@ A browser-based RDF data editor with syntax highlighting, graph visualization, t
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start the development server
-npm run dev
+pnpm run dev
 ```
 
 The app will be available at `http://localhost:5173`.
 
 ---
 
-## Available npm Scripts
+## Available pnpm Scripts
 
 | Script | Description |
 |---|---|
-| `npm run dev` | Start the Vite development server |
-| `npm run build` | Type-check and build for production |
-| `npm run test` | Run unit tests with Vitest |
-| `npm run e2e` | Run Playwright E2E tests (Chromium, Firefox, WebKit) |
-| `npm run lint` | Check code with ESLint |
-| `npm run lint:fix` | Auto-fix ESLint issues |
-| `npm run format` | Format all source files with Prettier |
-| `npm run typecheck` | Run TypeScript type check without emitting |
-| `npm run audit` | Run npm security audit (high severity and above) |
+| `pnpm run dev` | Start the Vite development server |
+| `pnpm run build` | Type-check and build for production |
+| `pnpm run test` | Run unit tests with Vitest |
+| `pnpm run e2e` | Run Playwright E2E tests (Chromium, Firefox, WebKit) |
+| `pnpm run lint` | Check code with Oxlint |
+| `pnpm run lint:fix` | Auto-fix Oxlint issues |
+| `pnpm run format` | Format all source files with Prettier |
+| `pnpm run typecheck` | Run TypeScript type check without emitting |
+| `pnpm run audit` | Run pnpm security audit (high severity and above) |
 
 ---
 
@@ -70,7 +70,7 @@ The app will be available at `http://localhost:5173`.
 | Styling | Tailwind CSS 3 |
 | Internationalization| i18next 25 |
 | Testing | Vitest 4 + Playwright 1.58 |
-| Linting / Formatting | ESLint 9 + Prettier 3 |
+| Linting / Formatting | Oxlint 1 + Prettier 3 |
 
 ---
 
