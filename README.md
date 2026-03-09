@@ -9,9 +9,7 @@ A browser-based RDF data editor with syntax highlighting, graph visualization, t
 
 ## Screenshot
 
-> _Screenshot coming soon — replace this placeholder with an actual screenshot or GIF._
-
-![rdf-editor screenshot placeholder](https://via.placeholder.com/800x450?text=rdf-editor+screenshot)
+![rdf-editor screenshot](docs/images/screenshot.png)
 
 ---
 
