@@ -27,7 +27,7 @@
     "cytoscape-cose-bilkent": "^4.1.0",
     "i18next": "^25.8.14",
     "i18next-browser-languagedetector": "^8.2.1",
-    "jsonld": "^8.3.2",
+    "jsonld": "^9.0.0",
     "lucide-react": "^0.577.0",
     "monaco-editor": "^0.55.1",
     "n3": "^2.0.3",
